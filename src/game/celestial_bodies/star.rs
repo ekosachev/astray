@@ -24,12 +24,17 @@ pub struct Star {
 }
 
 impl CelestialBody for Star {
+    type HostType = ();
     fn get_name(&self) -> String {
         self.name.clone()
     }
 
     fn get_type(&self) -> CelestialBodyType {
         CelestialBodyType::Star
+    }
+
+    fn get_mass(&self) -> f32 {
+        self.mass
     }
 
     fn get_menu_color(&self) -> style::Color {
@@ -44,7 +49,7 @@ impl CelestialBody for Star {
         }
     }
 
-    fn generate<T: CelestialBody>(host: Option<T>) -> Self {
+    fn generate(host: ()) -> Self {
         let mut rng = rand::thread_rng();
 
         let class: StarClass = match rng.gen_range(0..=100i32) {

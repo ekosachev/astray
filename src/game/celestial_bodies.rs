@@ -3,6 +3,7 @@ use std::iter::Iterator;
 
 mod star;
 mod planet;
+mod solar_system;
 
 mod constants {
     use std::fs;
@@ -22,12 +23,14 @@ pub enum CelestialBodyType {
     Comet,
     GasGiant,
     Nebula,
+    SolarSystem,
 }
 
 /// `CelestialBody` is a trait that represents a celestial body in the game
 /// and provides methods for getting information about the body and performing
 /// actions on it.
 pub trait CelestialBody {
+    type HostType;
     
     /// Get the name of the celestial body that will be displayed in the UI
     /// 
@@ -47,6 +50,15 @@ pub trait CelestialBody {
     /// * CelestialBodyType - The type of the celestial body
     fn get_type(&self) -> CelestialBodyType;
     
+    /// Get the mass of the celestial body
+    /// 
+    /// # Arguments
+    /// * `self` - A reference to the celestial body
+    /// 
+    /// # Returns
+    /// * f32 - The mass of the celestial body
+    fn get_mass(&self) -> f32;
+    
     /// Get the menu color of the celestial body
     /// 
     /// # Arguments
@@ -63,5 +75,5 @@ pub trait CelestialBody {
     /// 
     /// # Returns
     /// * `Self` - A generated instance of the implementer
-    fn generate<T: CelestialBody>(host: Option<T>) -> Self;
+    fn generate(host: Self::HostType) -> Self;
 }
