@@ -1,9 +1,12 @@
 use ratatui::style;
 use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, constants};
+use crate::game::helpers::{ consts, astrophysics };
 use rand;
 use rand::Rng;
 use rand::seq::SliceRandom;
+use rand::distributions::Distribution;
 
+#[derive(Clone)]
 enum StarClass {
     O,
     B,
@@ -14,12 +17,13 @@ enum StarClass {
     M,
 }
 
+#[derive(Clone)]
 pub struct Star {
     name: String,
     class: StarClass,
     mass: f32,
     radius: f32,
-    surface_temp: i32,
+    surface_temp: f32,
     
 }
 
@@ -37,6 +41,10 @@ impl CelestialBody for Star {
         self.mass
     }
 
+    fn get_radius(&self) -> f32 {
+        self.radius
+    }
+
     fn get_menu_color(&self) -> style::Color {
         match self.class {
             StarClass::O => { style::Color::Indexed(27) }
@@ -52,55 +60,32 @@ impl CelestialBody for Star {
     fn generate(host: ()) -> Self {
         let mut rng = rand::thread_rng();
 
-        let class: StarClass = match rng.gen_range(0..=100i32) {
-            0..=1    => StarClass::O,
-            2..=3    => StarClass::B,
-            4..=5    => StarClass::A,
-            6..=7    => StarClass::F,
-            8..=14   => StarClass::G,
-            15..=26  => StarClass::K,
-            27..=100 => StarClass::M,
-            _ => unreachable!()
-        };
 
-        let mass: f32 = rng.gen_range(
-            match class {
-                StarClass::O => { 16.0..=150.0 }
-                StarClass::B => { 2.10..=16.00 }
-                StarClass::A => { 1.40..=2.100 }
-                StarClass::F => { 1.04..=1.400 }
-                StarClass::G => { 0.80..=1.040 }
-                StarClass::K => { 0.45..=0.800 }
-                StarClass::M => { 0.08..=0.450 }
-            }
-        ) * 1.98 * 10.0f32.powi(18);
+        let mass: f32 = rand_distr::Normal::new(
+            1.7,
+            0.19
+        ).unwrap().sample(&mut rng) * consts::SUN_M_KG;
 
-        let radius: f32 = rng.gen_range(
-            match class {
-                StarClass::O => { 6.60..=100.0 }
-                StarClass::B => { 1.80..=6.600 }
-                StarClass::A => { 1.40..=1.800 }
-                StarClass::F => { 1.15..=1.400 }
-                StarClass::G => { 0.96..=1.150 }
-                StarClass::K => { 0.70..=0.960 }
-                StarClass::M => { 0.10..=0.700 }
-            }
-        ) * 6.957 * 10.0f32.powi(5);
-        
-        let surface_temp: i32 = rng.gen_range(
-            match class {
-                StarClass::O => { 33_000..=50_000 }
-                StarClass::B => { 10_000..=33_000 }
-                StarClass::A => { 7_300..=10_000 }
-                StarClass::F => { 6_000..=7_300 }
-                StarClass::G => { 5_300..=6_000 }
-                StarClass::K => { 3_900..=5_300 }
-                StarClass::M => { 2_300..=3_900 }
-            }
+        let luminosity = astrophysics::calculate_luminosity_from_mass(mass);
+        let radius: f32 = astrophysics::calculate_star_radius_from_mass(mass);
+        let surface_temp: f32 = astrophysics::calculate_temperature_from_luminosity_and_radius(
+            luminosity, radius
         );
+
+        let class = match surface_temp {
+            3700.0..=5200.0 => { StarClass::K },
+            5200.0..=6000.0 => { StarClass::G },
+            6000.0..=7500.0 => { StarClass::F },
+            7500.0..=10000.0 => { StarClass::A },
+            10000.0..=33000.0 => { StarClass::B },
+            33000.0..=95000.0 => { StarClass::O },
+            
+            _ => { StarClass::M }
+        };
         
+        let name = constants::STAR_NAMES.choose(&mut rng).unwrap().clone();
         Self {
-            name: constants::STAR_NAMES.choose(&mut rng).unwrap().clone(),
+            name,
             class,
             mass,
             radius,

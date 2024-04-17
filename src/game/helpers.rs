@@ -1,6 +1,16 @@
 pub mod consts {
+
+    // --- PHYSICAL CONSTANTS ---
     pub const G: f32 = 6.6743e-11;
+
+    // --- CONVERSION RATIOS ---
     pub const AU_M: f32 = 149597870700.0;
+
+    // --- SUN-RELATIVE UNITS ---
+    pub const SUN_M_KG: f32 = 1.989e30;
+
+    // --- EARTH-RELATIVE UNITS ---
+    pub const EARTH_M_KG: f32 = 5.972e24;
 }
 
 pub mod orbit_dynamics {
@@ -53,6 +63,10 @@ pub mod astrophysics {
         mass / radius.powi(3)
     }
 
+    pub fn calculate_temperature_from_luminosity_and_radius(luminosity: f32, radius: f32) -> f32 {
+        ((luminosity / radius.powi(2)).powf(0.25)) * 5776.0
+    }
+
     pub fn calculate_inner_radius_of_habitable_zone_from_luminosity(luminosity: f32) -> f32 {
         let r_au = (luminosity / 1.1).sqrt(); // calculate radius in au
         r_au * consts::AU_M // convert to meters
@@ -80,13 +94,17 @@ pub mod astrophysics {
 
         r_au * consts::AU_M // convert to meters
     }
-    
+
+    pub fn calculate_nth_orbit(first_orbit: f32, spacing: f32, n: u32) -> f32 {
+        first_orbit + spacing * (2i32.pow(n) as f32)
+    }
+
     pub fn calculate_n_orbits(first_orbit: f32, spacing: f32, n: usize) -> Vec<f32> {
         let mut result = Vec::<f32>::with_capacity(n);
         result.push(first_orbit);
         
-        for i in 0..=(n-2) {
-            result.push(first_orbit + spacing * (2i32.pow(i as u32) as f32))
+        for i in 0u32..=((n-2) as u32) {
+            result.push(calculate_nth_orbit(first_orbit, spacing, i))
         }
         
         result

@@ -1,9 +1,9 @@
 use std::fs;
 use std::iter::Iterator;
 
-mod star;
-mod planet;
-mod solar_system;
+pub mod star;
+pub mod planet;
+pub mod solar_system;
 
 mod constants {
     use std::fs;
@@ -11,7 +11,7 @@ mod constants {
 
     pub static STAR_NAMES: Lazy<Vec<String>> = Lazy::new(|| {
         fs::read_to_string("./assets/namelists/star_namelist.txt").unwrap
-        ().split('\n').map(|s| s.to_string()).collect()
+        ().split("\r\n").map(|s| s.to_string()).collect()
     });
 }
 
@@ -58,6 +58,15 @@ pub trait CelestialBody {
     /// # Returns
     /// * f32 - The mass of the celestial body
     fn get_mass(&self) -> f32;
+
+    /// Get the radius of the celestial body
+    ///
+    /// # Arguments
+    /// * `self` - A reference to the celestial body
+    ///
+    /// # Returns
+    /// * f32 - The radius of the celestial body
+    fn get_radius(&self) -> f32;
     
     /// Get the menu color of the celestial body
     /// 

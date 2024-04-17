@@ -11,6 +11,7 @@ use crate::{
   mode::Mode,
   tui,
 };
+use crate::components::system_tree::SystemTree;
 
 pub struct App {
   pub config: Config,
@@ -26,12 +27,13 @@ pub struct App {
 impl App {
   pub fn new(tick_rate: f64, frame_rate: f64) -> Result<Self> {
     let fps = FpsCounter::default();
+    let system_tree = SystemTree::default();
     let config = Config::new()?;
     let mode = Mode::Home;
     Ok(Self {
       tick_rate,
       frame_rate,
-      components: vec![Box::new(fps)],
+      components: vec![Box::new(fps), Box::new(system_tree)],
       should_quit: false,
       should_suspend: false,
       config,
