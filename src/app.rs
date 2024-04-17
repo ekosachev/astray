@@ -29,7 +29,7 @@ impl App {
     let fps = FpsCounter::default();
     let system_tree = SystemTree::default();
     let config = Config::new()?;
-    let mode = Mode::Home;
+    let mode = Mode::Main;
     Ok(Self {
       tick_rate,
       frame_rate,
@@ -127,6 +127,12 @@ impl App {
               }
             })?;
           },
+          Action::SelectBodyInSystemTree => {
+            self.mode = Mode::SelectingBodyInSystemTree;
+          }
+          Action::Select => {
+            self.mode = Mode::Main;
+          }
           _ => {},
         }
         for component in self.components.iter_mut() {

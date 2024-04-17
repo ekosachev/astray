@@ -5,6 +5,9 @@ use serde::{
   Deserialize, Serialize,
 };
 use strum::Display;
+use crate::game::celestial_bodies::CelestialBody;
+use crate::game::celestial_bodies::planet::Planet;
+use crate::game::celestial_bodies::star::Star;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Display, Deserialize)]
 pub enum Action {
@@ -17,4 +20,8 @@ pub enum Action {
   Refresh,
   Error(String),
   Help,
+  SelectBodyInSystemTree,
+  SelectNext,
+  SelectPrevious,
+  Select,
 }

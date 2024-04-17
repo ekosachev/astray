@@ -1,10 +1,16 @@
 {
   "keybindings": {
-    "Home": {
+    "Main": {
       "<q>": "Quit", // Quit the application
       "<Ctrl-d>": "Quit", // Another way to quit
       "<Ctrl-c>": "Quit", // Yet another way to quit
-      "<Ctrl-z>": "Suspend" // Suspend the application
+      "<Ctrl-z>": "Suspend", // Suspend the application
+      "<Alt-s>": "SelectBodyInSystemTree",
     },
+    "SelectingBodyInSystemTree": {
+      "<Up>": "SelectPrevious",
+      "<Down>": "SelectNext",
+      "<Enter>": "Select",
+    }
   }
 }

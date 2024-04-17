@@ -86,3 +86,27 @@ pub trait CelestialBody {
     /// * `Self` - A generated instance of the implementer
     fn generate(host: Self::HostType) -> Self;
 }
+
+/// The trait `Orbitable` is applied to the game objects that can be orbited
+/// by other objects.
+pub trait Orbitable {
+    /// `SatelliteType` stores the type of object's satellites
+    type SatelliteType: CanOrbit;
+    
+    /// Returns all the satellites that orbit the object
+    /// 
+    /// # Arguments
+    /// * `self` - A reference to the object
+    /// 
+    /// # Returns
+    /// * `Vec<Self::SatelliteType>` - A vector containing all the 
+    /// satellites that orbit the object
+    fn get_satellites(&self) -> Vec<Self::SatelliteType>;
+}
+
+pub trait CanOrbit {
+    type HostType: Orbitable;
+    
+    fn get_orbit_radius(&self) -> f32;
+    fn get_orbit_period(&self) -> f32;
+}

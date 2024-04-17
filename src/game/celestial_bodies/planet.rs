@@ -1,7 +1,7 @@
 use rand::Rng;
 use rand::distributions::Distribution;
 use ratatui::prelude::Color;
-use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType};
+use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType};
 use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::game::celestial_bodies::star::Star;
 use crate::game::helpers::{orbit_dynamics, astrophysics, consts};
@@ -91,5 +91,17 @@ impl CelestialBody for Planet {
             orbit_radius,
             orbit_period,
         }
+    }
+}
+
+impl CanOrbit for Planet {
+    type HostType = SolarSystem;
+
+    fn get_orbit_radius(&self) -> f32 {
+        self.orbit_radius
+    }
+
+    fn get_orbit_period(&self) -> f32 {
+        self.orbit_period
     }
 }

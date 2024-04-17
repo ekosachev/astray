@@ -1,6 +1,6 @@
 use rand::distributions::Distribution;
 use rand_distr;
-use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType};
+use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, Orbitable};
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::star::Star;
 use crate::game::helpers::{astrophysics, orbit_dynamics};
@@ -20,8 +20,6 @@ impl SolarSystem {
     pub fn get_star_mass(&self) -> f32 { self.star.get_mass() }
     pub fn get_star(&self) -> Star { self.star.clone() }
 
-    pub fn get_planets(&self) -> Vec<Planet> { self.planets.clone() }
-
     pub fn get_inner_limit(&self) -> f32 {
         astrophysics::calculate_system_inner_limit_from_star_radius_and_density(
             self.star.get_radius(),
@@ -33,7 +31,7 @@ impl SolarSystem {
     }
 
     pub  fn get_nth_orbit_radius(&self, n: u32) -> f32 {
-        if self.planets.len() > 0 {
+        if !self.planets.is_empty() {
             astrophysics::calculate_nth_orbit(
                 self.planets[0].get_orbit_radius(),
                 self.spacing_factor,
@@ -91,5 +89,13 @@ impl CelestialBody for SolarSystem {
         }
 
         system
+    }
+}
+
+impl Orbitable for SolarSystem {
+    type SatelliteType = Planet;
+
+    fn get_satellites(&self) -> Vec<Self::SatelliteType> {
+        self.planets.clone()
     }
 }

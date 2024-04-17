@@ -17,7 +17,7 @@ enum StarClass {
     M,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Eq)]
 pub struct Star {
     name: String,
     class: StarClass,
