@@ -24,4 +24,5 @@ pub enum Action {
   SelectNext,
   SelectPrevious,
   Select,
+  UpdateObjectView
 }

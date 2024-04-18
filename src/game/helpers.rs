@@ -89,14 +89,11 @@ pub mod astrophysics {
     }
     
     pub fn calculate_system_inner_limit_from_star_radius_and_density(radius: f32, density: f32) -> f32 {
-        let r_au = 2.455 * (radius * 696340f32) * ((density * 1408f32) / 5400f32).powf(1.0 / 3.0)
-            / 149600000f32; // calculate radius in au
-
-        r_au * consts::AU_M // convert to meters
+        2.455 * radius * (density / 5400f32).powf(1.0 / 3.0)
     }
 
     pub fn calculate_nth_orbit(first_orbit: f32, spacing: f32, n: u32) -> f32 {
-        first_orbit + spacing * (2i32.pow(n) as f32)
+        first_orbit + spacing * (2i32.pow(n) as f32) * consts::AU_M
     }
 
     pub fn calculate_n_orbits(first_orbit: f32, spacing: f32, n: usize) -> Vec<f32> {

@@ -1,5 +1,6 @@
 use std::fs;
 use std::iter::Iterator;
+use ratatui::text::Line;
 
 pub mod star;
 pub mod planet;
@@ -109,4 +110,8 @@ pub trait CanOrbit {
     
     fn get_orbit_radius(&self) -> f32;
     fn get_orbit_period(&self) -> f32;
+}
+
+pub trait Displayable {
+    fn get_description(&self) -> Vec<String>;
 }

@@ -1,10 +1,11 @@
 use ratatui::style;
-use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, constants};
+use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, constants, Displayable};
 use crate::game::helpers::{ consts, astrophysics };
 use rand;
 use rand::Rng;
 use rand::seq::SliceRandom;
 use rand::distributions::Distribution;
+use ratatui::prelude::Line;
 
 #[derive(Clone)]
 enum StarClass {
@@ -17,7 +18,21 @@ enum StarClass {
     M,
 }
 
-#[derive(Clone, Debug, Eq)]
+impl Into<char> for StarClass {
+    fn into(self) -> char {
+        match self {
+            StarClass::O => { 'O' }
+            StarClass::B => { 'B' }
+            StarClass::A => { 'A' }
+            StarClass::F => { 'F' }
+            StarClass::G => { 'G' }
+            StarClass::K => { 'K' }
+            StarClass::M => { 'M' }
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct Star {
     name: String,
     class: StarClass,
@@ -91,5 +106,18 @@ impl CelestialBody for Star {
             radius,
             surface_temp,
         }
+    }
+}
+
+impl Displayable for Star {
+    fn get_description(&self) -> Vec<String> {
+        let class_char: char = self.class.clone().into();
+        vec![
+            format!("Name: {}", self.name),
+            format!("Class: {}", class_char),
+            format!("Mass: {}", self.mass),
+            format!("Radius: {}", self.radius),
+            format!("Surface Temperature: {}", self.surface_temp),
+        ]
     }
 }
