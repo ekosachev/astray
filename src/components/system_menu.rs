@@ -1,7 +1,8 @@
+use color_eyre::owo_colors::OwoColorize;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Text};
-use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Paragraph};
+use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Paragraph, Row, Table};
 use crate::action::Action;
 use crate::components::Component;
 use crate::game::celestial_bodies::{CelestialBody, Displayable, Orbitable};
@@ -15,7 +16,7 @@ pub struct SystemMenu {
     system: SolarSystem,
     is_focused: bool,
     list_length: usize,
-    text: Vec<String>,
+    properties: Vec<Vec<String>>,
 }
 
 impl Default for SystemMenu {
@@ -30,7 +31,7 @@ impl Default for SystemMenu {
             state,
             system,
             is_focused: false,
-            text: vec![],
+            properties: vec![],
         }
     }
 }
@@ -63,10 +64,10 @@ impl Component for SystemMenu {
                 let selected = self.state.selected().unwrap();
                 if selected == 0 {
                     let star = self.system.get_star();
-                    self.text = star.get_description();
+                    self.properties = star.get_properties();
                 } else {
                     let planets = self.system.get_satellites();
-                    self.text = planets[selected - 1].get_description();
+                    self.properties = planets[selected - 1].get_properties();
                 }
                 
                 return Ok(Some(
@@ -124,13 +125,21 @@ impl Component for SystemMenu {
             .repeat_highlight_symbol(false)
             .direction(ListDirection::TopToBottom);
 
-        let lines: Vec<Line> = self.text.iter().map(
-            |x| {
-                Line::from(x.as_str())
-            }
-        ).collect();
+        let mut rows: Vec<Row> = Vec::with_capacity(self.properties.len());
+
+        for property in self.properties.iter() {
+            rows.push(Row::new(property.clone()));
+        }
         
-        let object_view = Paragraph::new(lines)
+        let widths = vec![
+            Constraint::Fill(2),
+            Constraint::Fill(3),
+            Constraint::Fill(3),
+        ];
+        
+        let object_view = Table::new(rows, widths)
+            .header(Row::new(vec!["Property", "Value", "Value in relative units"])
+                .style(Style::default().fg(Color::LightBlue).add_modifier(Modifier::BOLD)))
             .block(
                 Block::default()
                     .title("Selected object")

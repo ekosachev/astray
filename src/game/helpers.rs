@@ -4,13 +4,17 @@ pub mod consts {
     pub const G: f32 = 6.6743e-11;
 
     // --- CONVERSION RATIOS ---
-    pub const AU_M: f32 = 149597870700.0;
+    pub const AU_M: f32 = 149_597_870_691.0;
+    pub const S_YR: i32 = 365 * 24 * 60 * 60;
 
     // --- SUN-RELATIVE UNITS ---
     pub const SUN_M_KG: f32 = 1.989e30;
+    pub const SUN_R_M: f32 = 695_700_000.0;
+    pub const SUN_T_K: f32 = 5_800.0;
 
     // --- EARTH-RELATIVE UNITS ---
     pub const EARTH_M_KG: f32 = 5.972e24;
+    pub const EARTH_R_M: f32 = 6_378_000.0;
 }
 
 pub mod orbit_dynamics {
@@ -28,17 +32,27 @@ pub mod orbit_dynamics {
     }
 }
 
+pub mod geometry {
+    pub fn calculate_sphere_volume_from_radius(radius: f32) -> f32 {
+        4.0 / 3.0 * std::f32::consts::PI * radius.powf(3.0)
+    }
+    
+    pub fn calculate_sphere_radius_from_volume(volume: f32) -> f32 {
+        (volume / (4.0 / 3.0 * std::f32::consts::PI)).powf(1.0 / 3.0)
+    }
+}
+
 pub mod astrophysics {
     use std::ops::{Range, RangeInclusive};
     use crate::game::helpers::consts;
 
     pub fn calculate_luminosity_from_mass(mass: f32) -> f32 {
         // Express mass as a multiple os solar mass
-        let mass = mass / 1.9885e30;
+        let mass = mass / consts::SUN_M_KG;
 
         let luminosity_solar = match mass {
             0.0..=0.43 => { 0.23 * mass.powf(2.3)}
-            0.44..=2.0 => {mass.powi(2) }
+            0.44..=2.0 => { mass.powi(4) }
             _ => { 1.4 * mass.powf(3.5) }
         };
 
@@ -48,15 +62,15 @@ pub mod astrophysics {
 
     pub fn calculate_star_radius_from_mass(mass: f32) -> f32 {
         // Express mass as a multiple of solar mass
-        let mass = mass / 1.9885e30;
+        let mass_solar = mass / consts::SUN_M_KG;
 
-        let radius = match mass {
-            0.0..=1.0 => { mass.powf(0.8) },
-            _ => { mass.powf(0.57) },
+        let radius = match mass_solar {
+            0.0..=1.0 => { mass_solar.powf(0.8) },
+            _ => { mass_solar.powf(0.57) },
         };
 
         // Return radius in meters
-        radius * 6.957e8
+        radius * consts::SUN_R_M
     }
 
     pub fn calculate_density_from_mass_and_radius(mass: f32, radius: f32) -> f32 {

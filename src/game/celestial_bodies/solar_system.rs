@@ -1,6 +1,6 @@
 use rand::distributions::Distribution;
 use rand_distr;
-use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, Orbitable};
+use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType, Orbitable};
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::star::Star;
 use crate::game::helpers::{astrophysics, orbit_dynamics};

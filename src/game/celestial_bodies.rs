@@ -113,5 +113,5 @@ pub trait CanOrbit {
 }
 
 pub trait Displayable {
-    fn get_description(&self) -> Vec<String>;
+    fn get_properties(&self) -> Vec<Vec<String>>;
 }

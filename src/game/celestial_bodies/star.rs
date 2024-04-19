@@ -110,14 +110,23 @@ impl CelestialBody for Star {
 }
 
 impl Displayable for Star {
-    fn get_description(&self) -> Vec<String> {
-        let class_char: char = self.class.clone().into();
+    fn get_properties(&self) -> Vec<Vec<String>> {
         vec![
-            format!("Name: {}", self.name),
-            format!("Class: {}", class_char),
-            format!("Mass: {}", self.mass),
-            format!("Radius: {}", self.radius),
-            format!("Surface Temperature: {}", self.surface_temp),
+            vec![
+                String::from("Mass"),
+                format!("{:.3E} kg", self.mass),
+                format!("{:.3} solar masses", self.mass / consts::SUN_M_KG),
+            ],
+            vec![
+                String::from("Radius"),
+                format!("{:.3E} m", self.radius),
+                format!("{:.3} solar radii", self.radius / consts::SUN_R_M),
+            ],
+            vec![
+                String::from("Temperature"),
+                format!("{:.3E} K", self.surface_temp),
+                format!("{:.3} solar temperatures", self.surface_temp / consts::SUN_T_K),
+            ],
         ]
     }
 }

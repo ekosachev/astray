@@ -15,12 +15,6 @@ pub struct Planet {
     orbit_period: f32,
 }
 
-impl Planet {
-    pub fn get_orbit_radius(&self) -> f32 {
-        self.orbit_radius
-    }
-}
-
 impl CelestialBody for Planet {
     type HostType = SolarSystem;
     fn get_name(&self) -> String {
@@ -54,8 +48,8 @@ impl CelestialBody for Planet {
         ).unwrap().sample(&mut rng.clone()) * consts::EARTH_M_KG;
         
         let density = rand_distr::Normal::new(
-            5.5,
-            0.75,
+            5500.0,
+            750.0,
         ).unwrap().sample(&mut rng.clone());
         
         let volume = mass / density;
@@ -107,13 +101,29 @@ impl CanOrbit for Planet {
 }
 
 impl Displayable for Planet {
-    fn get_description(&self) -> Vec<String> {
+    fn get_properties(&self) -> Vec<Vec<String>> {
         vec![
-            format!("Name: {}", self.name),
-            format!("Mass: {}", self.mass),
-            format!("Radius: {}", self.radius),
-            format!("Orbit Radius: {}", self.orbit_radius),
-            format!("Orbit Period: {}", self.orbit_period),
+            vec![
+                String::from("Mass"),
+                format!("{:.3E} kg", self.mass),
+                format!("{:.3} earth masses", self.mass / consts::EARTH_M_KG),
+            ],
+            vec![
+                String::from("Radius"),
+                format!("{:.3E} m", self.radius),
+                format!("{:.3} earth radii", self.radius / consts::EARTH_R_M),
+            ],
+            vec![
+                String::from("Orbit radius"),
+                format!("{:.3E} m", self.orbit_radius),
+                format!("{:.3} AU", self.orbit_radius / consts::AU_M),
+            ],
+            vec![
+                String::from("Orbital period"),
+                format!("{:.3E} s", self.orbit_period),
+                format!("{:.3} yrs", self.orbit_period / consts::S_YR as f32),
+            ],
+            
         ]
     }
 }
