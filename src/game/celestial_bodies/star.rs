@@ -1,11 +1,10 @@
-use ratatui::style;
-use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, constants, Displayable};
-use crate::game::helpers::{ consts, astrophysics };
 use rand;
-use rand::Rng;
-use rand::seq::SliceRandom;
 use rand::distributions::Distribution;
-use ratatui::prelude::Line;
+use rand::seq::SliceRandom;
+use ratatui::style;
+
+use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, constants, Displayable};
+use crate::game::helpers::{astrophysics, consts};
 
 #[derive(Clone)]
 enum StarClass {
@@ -18,9 +17,9 @@ enum StarClass {
     M,
 }
 
-impl Into<char> for StarClass {
-    fn into(self) -> char {
-        match self {
+impl From<StarClass> for char {
+    fn from(value: StarClass) -> Self {
+        match value {
             StarClass::O => { 'O' }
             StarClass::B => { 'B' }
             StarClass::A => { 'A' }
@@ -121,6 +120,12 @@ impl Displayable for Star {
                 String::from("Radius"),
                 format!("{:.3E} m", self.radius),
                 format!("{:.3} solar radii", self.radius / consts::SUN_R_M),
+            ],
+            vec![
+                String::from("Luminosity"),
+                format!("{:.3E} W", astrophysics::calculate_luminosity_from_mass(self.mass)),
+                format!("{:.3} solar luminosities", astrophysics::calculate_luminosity_from_mass
+                    (self.mass) / consts::SUN_LUM_W),
             ],
             vec![
                 String::from("Temperature"),

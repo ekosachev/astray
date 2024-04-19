@@ -11,6 +11,7 @@ pub mod consts {
     pub const SUN_M_KG: f32 = 1.989e30;
     pub const SUN_R_M: f32 = 695_700_000.0;
     pub const SUN_T_K: f32 = 5_800.0;
+    pub const SUN_LUM_W: f32 = 3.828e26;
 
     // --- EARTH-RELATIVE UNITS ---
     pub const EARTH_M_KG: f32 = 5.972e24;
@@ -57,7 +58,7 @@ pub mod astrophysics {
         };
 
         // Return luminosity in watts
-        luminosity_solar * 3.828e26
+        luminosity_solar * consts::SUN_LUM_W
     }
 
     pub fn calculate_star_radius_from_mass(mass: f32) -> f32 {
@@ -78,7 +79,9 @@ pub mod astrophysics {
     }
 
     pub fn calculate_temperature_from_luminosity_and_radius(luminosity: f32, radius: f32) -> f32 {
-        ((luminosity / radius.powi(2)).powf(0.25)) * 5776.0
+        let lum_solar = luminosity / consts::SUN_LUM_W;
+        let r_solar = radius / consts::SUN_R_M;
+        ((lum_solar / r_solar.powi(2)).powf(0.25)) * 5776.0
     }
 
     pub fn calculate_inner_radius_of_habitable_zone_from_luminosity(luminosity: f32) -> f32 {
