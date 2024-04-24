@@ -5,6 +5,7 @@ use serde::{
 use strum::Display;
 
 use crate::game::celestial_bodies::solar_system::SolarSystem;
+use crate::tabs::Tabs;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Display, Deserialize)]
 pub enum Action {
@@ -22,5 +23,8 @@ pub enum Action {
   SelectPrevious,
   Select,
   UpdateObjectView,
-  LoadSystemView(SolarSystem)
+  LoadTabs(Vec<Tabs>),
+  NavigateNextTab,
+  NavigatePrevTab,
+  LoadSystemView(SolarSystem),
 }

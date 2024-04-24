@@ -8,6 +8,7 @@ use crate::action::Action;
 use crate::components::Component;
 use crate::game::celestial_bodies::{CelestialBody, Displayable, Orbitable};
 use crate::game::celestial_bodies::solar_system::SolarSystem;
+use crate::tabs::Tabs;
 use crate::tui::Frame;
 
 pub struct SystemMenu {
@@ -172,5 +173,9 @@ impl Component for SystemMenu {
         f.render_widget(object_view, chunks[1]);
 
         Ok(())
+    }
+
+    fn is_drawn_in_tab(&self, tab: &Tabs) -> bool {
+        *tab == Tabs::SystemView
     }
 }

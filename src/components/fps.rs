@@ -3,8 +3,9 @@ use std::time::Instant;
 use color_eyre::eyre::Result;
 use ratatui::{prelude::*, widgets::*};
 
-use super::Component;
 use crate::{action::Action, tui::Frame};
+
+use super::Component;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FpsCounter {
@@ -86,5 +87,9 @@ impl Component for FpsCounter {
     let block = Block::default().title(block::Title::from(s.dim()).alignment(Alignment::Right));
     f.render_widget(block, rect);
     Ok(())
+  }
+
+  fn is_drawn_in_tab(&self, tab: &crate::tabs::Tabs) -> bool {
+    true
   }
 }

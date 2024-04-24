@@ -22,7 +22,7 @@ pub mod tui;
 pub mod utils;
 mod game;
 
-
+pub mod tabs;
 async fn tokio_main() -> Result<()> {
   initialize_logging()?;
 
