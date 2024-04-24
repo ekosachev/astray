@@ -1,9 +1,34 @@
 [
   {
-    "name": "Research",
-    "id": "research id",
-    "cost": 123,
-    "required_any": [ "some_other" ],
-    "required_all": [ "yet_another" ]
+    "name": "Primitive stellarators",
+    "id": "fusion-energy-1",
+    "cost": 100,
+    "field": "energy-generation",
+    "required_any": [],
+    "required_all": [],
+  },
+  {
+    "name": "Advanced plasma control",
+    "id": "fusion-energy-2",
+    "cost": 150,
+    "field": "energy-generation",
+    "required_any": [],
+    "required_all": [ "fusion-energy-1" ],
+  },
+  {
+    "name": "Ion thrusters",
+    "id": "sublight-propulsion-1",
+    "cost": 100,
+    "field": "sublight-propulsion",
+    "required_any": [],
+    "required_all": [],
+  },
+  {
+    "name": "Automated mines",
+    "id": "resource-acquisition-1",
+    "cost": 75,
+    "field": "resource-acquisition",
+    "required_any": [],
+    "required_all": [],
   }
 ]

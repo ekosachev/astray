@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Energy generation",
+    "id": "energy-generation"
+  },
+  {
+    "name": "Sublight propulsion",
+    "id": "sublight-propulsion"
+  },
+  {
+    "name": "Resource acquisition",
+    "id": "resource-acquisition"
+  }
+]
