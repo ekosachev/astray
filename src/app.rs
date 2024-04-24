@@ -6,12 +6,14 @@ use tokio::sync::mpsc;
 
 use crate::{
   action::Action,
-  components::{fps::FpsCounter, Component},
+  components::{Component, fps::FpsCounter},
   config::Config,
   mode::Mode,
   tui,
 };
 use crate::components::system_menu::SystemMenu;
+use crate::components::top_menu::TopMenu;
+use crate::game::game_state::GameState;
 
 pub struct App {
   pub config: Config,
@@ -22,29 +24,33 @@ pub struct App {
   pub should_suspend: bool,
   pub mode: Mode,
   pub last_tick_key_events: Vec<KeyEvent>,
+  pub state: GameState,
 }
 
 impl App {
   pub fn new(tick_rate: f64, frame_rate: f64) -> Result<Self> {
     let fps = FpsCounter::default();
     let system_tree = SystemMenu::default();
+    let top_menu = TopMenu::default();
     let config = Config::new()?;
     let mode = Mode::Main;
     Ok(Self {
       tick_rate,
       frame_rate,
-      components: vec![Box::new(fps), Box::new(system_tree)],
+      components: vec![Box::new(top_menu), Box::new(system_tree), Box::new(fps)],
       should_quit: false,
       should_suspend: false,
       config,
       mode,
       last_tick_key_events: Vec::new(),
+      state: GameState::new(),
     })
   }
 
   pub async fn run(&mut self) -> Result<()> {
     let (action_tx, mut action_rx) = mpsc::unbounded_channel();
 
+    action_tx.send(Action::LoadSystemView(self.state.get_starting_system()))?;
     let mut tui = tui::Tui::new()?.tick_rate(self.tick_rate).frame_rate(self.frame_rate);
     // tui.mouse(true);
     tui.enter()?;

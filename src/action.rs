@@ -1,13 +1,10 @@
-use std::{fmt, string::ToString};
-
 use serde::{
-  de::{self, Deserializer, Visitor},
+  de::{Deserializer, Visitor},
   Deserialize, Serialize,
 };
 use strum::Display;
-use crate::game::celestial_bodies::CelestialBody;
-use crate::game::celestial_bodies::planet::Planet;
-use crate::game::celestial_bodies::star::Star;
+
+use crate::game::celestial_bodies::solar_system::SolarSystem;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Display, Deserialize)]
 pub enum Action {
@@ -24,5 +21,6 @@ pub enum Action {
   SelectNext,
   SelectPrevious,
   Select,
-  UpdateObjectView
+  UpdateObjectView,
+  LoadSystemView(SolarSystem)
 }

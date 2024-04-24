@@ -1,19 +1,18 @@
 use color_eyre::owo_colors::OwoColorize;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
-use ratatui::text::{Line, Text};
-use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Paragraph, Row, Table};
+use ratatui::text::Text;
+use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Row, Table};
+
 use crate::action::Action;
 use crate::components::Component;
 use crate::game::celestial_bodies::{CelestialBody, Displayable, Orbitable};
-use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::solar_system::SolarSystem;
-use crate::game::celestial_bodies::star::Star;
 use crate::tui::Frame;
 
 pub struct SystemMenu {
     state: ListState,
-    system: SolarSystem,
+    system: Option<SolarSystem>,
     is_focused: bool,
     list_length: usize,
     properties: Vec<Vec<String>>,
@@ -22,17 +21,23 @@ pub struct SystemMenu {
 impl Default for SystemMenu {
     fn default() -> Self {
         let mut state = ListState::default();
-        state.select(Some(0));
-        
-        let system = SolarSystem::generate(());
+        state.select(None);
 
         Self {
-            list_length: system.get_n_planets() + 1,
+            list_length: 0,
             state,
-            system,
+            system: None,
             is_focused: false,
             properties: vec![],
         }
+    }
+}
+
+impl SystemMenu {
+    pub fn set_system(&mut self, system: SolarSystem) {
+        self.list_length = 1 + system.get_n_planets();
+        self.state.select(Some(0));
+        self.system = Some(system);
     }
 }
 
@@ -41,6 +46,10 @@ impl Component for SystemMenu {
         match action {
             Action::SelectBodyInSystemTree => {
                 self.is_focused = true;
+            }
+            Action::LoadSystemView(system) => {
+                self.set_system(system);
+                return Ok(Some(Action::Select))
             }
             Action::SelectNext => {
                 let selected = self.state.selected().unwrap();
@@ -63,10 +72,10 @@ impl Component for SystemMenu {
 
                 let selected = self.state.selected().unwrap();
                 if selected == 0 {
-                    let star = self.system.get_star();
+                    let star = self.system.clone().unwrap().get_star();
                     self.properties = star.get_properties();
                 } else {
-                    let planets = self.system.get_satellites();
+                    let planets = self.system.clone().unwrap().get_satellites();
                     self.properties = planets[selected - 1].get_properties();
                 }
                 
@@ -81,23 +90,35 @@ impl Component for SystemMenu {
     }
 
     fn draw(&mut self, f: &mut Frame<'_>, area: Rect) -> color_eyre::Result<()> {
+        if self.system.is_none() {
+            return Ok(())
+        }
+
+        let v_chunks = Layout::new(
+            Direction::Vertical,
+            vec![
+                Constraint::Length(3),
+                Constraint::Min(0),
+            ],
+        ).split(area);
+
         let chunks = Layout::new(
             Direction::Horizontal,
             vec![
                 Constraint::Percentage(20),
                 Constraint::Fill(1),
             ]
-        ).split(area);
+        ).split(v_chunks[1]);
 
-        let mut items = Vec::<Text>::with_capacity(1 + self.system.get_n_planets());
+        let mut items = Vec::<Text>::with_capacity(1 + self.system.clone().unwrap().get_n_planets());
         items.push(
             Text::styled(
-                self.system.get_star().get_name(),
-                Style::default().fg(self.system.get_star().get_menu_color())
+                self.system.clone().unwrap().get_star().get_name(),
+                Style::default().fg(self.system.clone().unwrap().get_star().get_menu_color())
             )
         );
 
-        self.system.get_satellites().iter().for_each(|p| {
+        self.system.clone().unwrap().get_satellites().iter().for_each(|p| {
            items.push(
                Text::styled(
                    p.get_name(),
@@ -109,7 +130,7 @@ impl Component for SystemMenu {
         let list = List::new(items)
             .block(
                 Block::default()
-                    .title(self.system.get_name())
+                    .title(self.system.clone().unwrap().get_name())
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
                     .border_style(

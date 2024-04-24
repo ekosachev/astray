@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Research",
+    "id": "research id",
+    "cost": 123,
+    "required_any": [ "some_other" ],
+    "required_all": [ "yet_another" ]
+  }
+]

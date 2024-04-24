@@ -1,12 +1,15 @@
+use ordered_float::OrderedFloat;
 use rand;
 use rand::distributions::Distribution;
 use rand::seq::SliceRandom;
+use rand_distr::num_traits::ToPrimitive;
 use ratatui::style;
+use serde::{Deserialize, Serialize};
 
 use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, constants, Displayable};
 use crate::game::helpers::{astrophysics, consts};
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum StarClass {
     O,
     B,
@@ -31,13 +34,13 @@ impl From<StarClass> for char {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Star {
     name: String,
     class: StarClass,
-    mass: f32,
-    radius: f32,
-    surface_temp: f32,
+    mass: OrderedFloat<f32>,
+    radius: OrderedFloat<f32>,
+    surface_temp: OrderedFloat<f32>,
     
 }
 
@@ -52,11 +55,11 @@ impl CelestialBody for Star {
     }
 
     fn get_mass(&self) -> f32 {
-        self.mass
+        self.mass.to_f32().unwrap()
     }
 
     fn get_radius(&self) -> f32 {
-        self.radius
+        self.radius.to_f32().unwrap()
     }
 
     fn get_menu_color(&self) -> style::Color {
@@ -75,10 +78,14 @@ impl CelestialBody for Star {
         let mut rng = rand::thread_rng();
 
 
-        let mass: f32 = rand_distr::Normal::new(
-            1.7,
-            0.19
-        ).unwrap().sample(&mut rng) * consts::SUN_M_KG;
+        let mass_solar: f32 = rand_distr::Normal::new(
+            1.2,
+            0.2,
+        ).unwrap().sample(&mut rng);
+
+        let mass = mass_solar
+            .min(10.0)
+            .max(0.1) * consts::SUN_M_KG;
 
         let luminosity = astrophysics::calculate_luminosity_from_mass(mass);
         let radius: f32 = astrophysics::calculate_star_radius_from_mass(mass);
@@ -86,13 +93,13 @@ impl CelestialBody for Star {
             luminosity, radius
         );
 
-        let class = match surface_temp {
-            3700.0..=5200.0 => { StarClass::K },
-            5200.0..=6000.0 => { StarClass::G },
-            6000.0..=7500.0 => { StarClass::F },
-            7500.0..=10000.0 => { StarClass::A },
-            10000.0..=33000.0 => { StarClass::B },
-            33000.0..=95000.0 => { StarClass::O },
+        let class = match surface_temp as i32 {
+            3700..=5200 => { StarClass::K },
+            5201..=6000 => { StarClass::G },
+            6001..=7500 => { StarClass::F },
+            7501..=10000 => { StarClass::A },
+            10001..=33000 => { StarClass::B },
+            33001..=95000 => { StarClass::O },
             
             _ => { StarClass::M }
         };
@@ -101,9 +108,9 @@ impl CelestialBody for Star {
         Self {
             name,
             class,
-            mass,
-            radius,
-            surface_temp,
+            mass: OrderedFloat(mass),
+            radius: OrderedFloat(radius),
+            surface_temp: OrderedFloat(radius),
         }
     }
 }
@@ -123,9 +130,9 @@ impl Displayable for Star {
             ],
             vec![
                 String::from("Luminosity"),
-                format!("{:.3E} W", astrophysics::calculate_luminosity_from_mass(self.mass)),
+                format!("{:.3E} W", astrophysics::calculate_luminosity_from_mass(self.get_mass())),
                 format!("{:.3} solar luminosities", astrophysics::calculate_luminosity_from_mass
-                    (self.mass) / consts::SUN_LUM_W),
+                    (self.get_mass()) / consts::SUN_LUM_W),
             ],
             vec![
                 String::from("Temperature"),

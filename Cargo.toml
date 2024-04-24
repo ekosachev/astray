@@ -23,6 +23,7 @@ json5 = "0.4.1"
 lazy_static = "1.4.0"
 libc = "0.2.148"
 log = "0.4.20"
+ordered-float = { version = "4.2.0", features = ["serde"] }
 pretty_assertions = "1.4.0"
 rand= "0.8.5"
 rand_distr = "0.4.3"

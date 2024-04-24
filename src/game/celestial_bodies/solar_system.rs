@@ -1,15 +1,19 @@
+use ordered_float::OrderedFloat;
 use rand::distributions::Distribution;
 use rand_distr;
+use rand_distr::num_traits::ToPrimitive;
+use serde::{Deserialize, Serialize};
+
 use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType, Orbitable};
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::star::Star;
-use crate::game::helpers::{astrophysics, orbit_dynamics};
+use crate::game::helpers::astrophysics;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SolarSystem {
     star: Star,
     planets: Vec<Planet>,
-    spacing_factor: f32,
+    spacing_factor: OrderedFloat<f32>,
 }
 
 impl SolarSystem {
@@ -30,11 +34,15 @@ impl SolarSystem {
         )
     }
 
+    pub fn get_spacing_factor(&self) -> f32 {
+        self.spacing_factor.to_f32().unwrap()
+    }
+
     pub  fn get_nth_orbit_radius(&self, n: u32) -> f32 {
         if !self.planets.is_empty() {
             astrophysics::calculate_nth_orbit(
                 self.planets[0].get_orbit_radius(),
-                self.spacing_factor,
+                self.get_spacing_factor(),
                 n,
             )
         } else {
@@ -76,7 +84,7 @@ impl CelestialBody for SolarSystem {
         let mut system = Self {
             star: Star::generate(()),
             planets: vec![],
-            spacing_factor,
+            spacing_factor: OrderedFloat(spacing_factor),
         };
 
         let n_planets: i32 = rand_distr::Normal::new(

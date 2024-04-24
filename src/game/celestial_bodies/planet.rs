@@ -1,18 +1,19 @@
-use rand::Rng;
+use ordered_float::OrderedFloat;
 use rand::distributions::Distribution;
-use ratatui::prelude::{Color, Line};
+use rand_distr::num_traits::ToPrimitive;
+use serde::{Deserialize, Serialize};
+
 use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType, Displayable};
 use crate::game::celestial_bodies::solar_system::SolarSystem;
-use crate::game::celestial_bodies::star::Star;
-use crate::game::helpers::{orbit_dynamics, astrophysics, consts};
+use crate::game::helpers::{consts, orbit_dynamics};
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Planet {
     name: String,
-    mass: f32,
-    radius: f32,
-    orbit_radius: f32,
-    orbit_period: f32,
+    mass: OrderedFloat<f32>,
+    radius: OrderedFloat<f32>,
+    orbit_radius: OrderedFloat<f32>,
+    orbit_period: OrderedFloat<f32>,
 }
 
 impl CelestialBody for Planet {
@@ -26,11 +27,11 @@ impl CelestialBody for Planet {
     }
 
     fn get_mass(&self) -> f32 {
-        self.mass
+        self.mass.to_f32().unwrap()
     }
 
     fn get_radius(&self) -> f32 {
-        self.radius
+        self.radius.to_f32().unwrap()
     }
 
     // fn get_menu_color(&self) -> Color {
@@ -80,10 +81,10 @@ impl CelestialBody for Planet {
 
         Self {
             name,
-            mass,
-            radius,
-            orbit_radius,
-            orbit_period,
+            mass: OrderedFloat(mass),
+            radius: OrderedFloat(radius),
+            orbit_radius: OrderedFloat(orbit_radius),
+            orbit_period: OrderedFloat(orbit_period),
         }
     }
 }
@@ -92,11 +93,11 @@ impl CanOrbit for Planet {
     type HostType = SolarSystem;
 
     fn get_orbit_radius(&self) -> f32 {
-        self.orbit_radius
+        self.orbit_radius.to_f32().unwrap()
     }
 
     fn get_orbit_period(&self) -> f32 {
-        self.orbit_period
+        self.orbit_period.to_f32().unwrap()
     }
 }
 
