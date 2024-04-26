@@ -71,7 +71,7 @@ impl Config {
     for (mode, default_styles) in default_config.styles.iter() {
       let user_styles = cfg.styles.entry(*mode).or_default();
       for (style_key, style) in default_styles.iter() {
-        user_styles.entry(style_key.clone()).or_insert_with(|| style.clone());
+        user_styles.entry(style_key.clone()).or_insert_with(|| *style);
       }
     }
 
@@ -201,7 +201,7 @@ pub fn key_event_to_string(key_event: &KeyEvent) -> String {
       char = format!("f({c})");
       &char
     },
-    KeyCode::Char(c) if c == ' ' => "space",
+    KeyCode::Char(' ') => "space",
     KeyCode::Char(c) => {
       char = c.to_string();
       &char
@@ -443,7 +443,7 @@ mod tests {
   fn test_config() -> Result<()> {
     let c = Config::new()?;
     assert_eq!(
-      c.keybindings.get(&Mode::Home).unwrap().get(&parse_key_sequence("<q>").unwrap_or_default()).unwrap(),
+      c.keybindings.get(&Mode::Main).unwrap().get(&parse_key_sequence("<q>").unwrap_or_default()).unwrap(),
       &Action::Quit
     );
     Ok(())

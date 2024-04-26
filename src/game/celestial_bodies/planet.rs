@@ -39,7 +39,7 @@ impl CelestialBody for Planet {
     // }
 
     fn generate(host: SolarSystem) -> Self {
-        let mut rng = rand::thread_rng();
+        let rng = rand::thread_rng();
         let n = host.get_n_planets() + 1;
         let letter: char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().nth(n - 1).unwrap();
 

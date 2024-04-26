@@ -50,11 +50,13 @@ pub mod astrophysics {
     pub fn calculate_luminosity_from_mass(mass: f32) -> f32 {
         // Express mass as a multiple os solar mass
         let mass = mass / consts::SUN_M_KG;
-
-        let luminosity_solar = match mass {
-            0.0..=0.43 => { 0.23 * mass.powf(2.3)}
-            0.44..=2.0 => { mass.powi(4) }
-            _ => { 1.4 * mass.powf(3.5) }
+        
+        let luminosity_solar = if mass <= 0.43 {
+            0.23 * mass.powf(2.3)
+        } else if mass <= 2.0 {
+            mass.powi(4)
+        } else {
+            1.4 * mass.powf(3.5)
         };
 
         // Return luminosity in watts
@@ -64,10 +66,11 @@ pub mod astrophysics {
     pub fn calculate_star_radius_from_mass(mass: f32) -> f32 {
         // Express mass as a multiple of solar mass
         let mass_solar = mass / consts::SUN_M_KG;
-
-        let radius = match mass_solar {
-            0.0..=1.0 => { mass_solar.powf(0.8) },
-            _ => { mass_solar.powf(0.57) },
+        
+        let radius = if mass_solar <= 1.0 {
+            mass_solar.powf(0.8)
+        } else {
+            mass_solar.powf(0.57)
         };
 
         // Return radius in meters
