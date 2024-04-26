@@ -1,10 +1,12 @@
 use std::collections::HashMap;
+
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::prelude::{Color, Modifier, Style};
+use ratatui::text::{Line, Span};
 use ratatui::widgets;
 use ratatui::widgets::{Block, Borders, BorderType, ListDirection, ListState};
-use crate::action::Action;
 
+use crate::action::Action;
 use crate::components::Component;
 use crate::components::utils::widget_utils;
 use crate::game::research::{Research, ResearchField};
@@ -16,6 +18,7 @@ pub struct ResearchMenu {
     research_list_state: ListState,
     field_list: Vec<ResearchField>,
     research_list: Vec<Research>,
+    research_colors: Vec<Color>,
     field_list_focused: bool,
     research_list_focused: bool,
     info: HashMap<String, String>
@@ -33,6 +36,7 @@ impl Default for ResearchMenu {
             research_list_state,
             field_list: Vec::new(),
             research_list: Vec::new(),
+            research_colors: Vec::new(),
             field_list_focused: false,
             research_list_focused: false,
             info: HashMap::new(),
@@ -90,6 +94,7 @@ impl Component for ResearchMenu {
             Action::ContinueSelecting => {
                 self.research_list_focused = true;
                 self.field_list_focused = false;
+                self.research_list_state.select(Some(0));
                 return Ok(Some(
                     Action::ScheduleLoadResearchesForField(
                         self.field_list[self.field_list_state.selected().unwrap()].clone()
@@ -99,7 +104,7 @@ impl Component for ResearchMenu {
             
             Action::Select => {
                 self.research_list_focused = false;
-                if self.research_list.len() > 0 {
+                if !self.research_list.is_empty() {
                     return Ok(Some(
                         Action::ScheduleLoadResearchInfo(
                             self.research_list[self.research_list_state.selected().unwrap()].clone()
@@ -110,6 +115,10 @@ impl Component for ResearchMenu {
             
             Action::LoadResearchesForField(researches) => {
                 self.research_list = researches;
+            }
+
+            Action::LoadResearchColors(colors) => {
+                self.research_colors = colors;
             }
             
             Action::LoadResearchInfo(info) => {
@@ -161,9 +170,16 @@ impl Component for ResearchMenu {
             .repeat_highlight_symbol(false)
             .direction(ListDirection::TopToBottom);
 
-        let research_list = widgets::List::new(self.research_list.iter().map(
-            |r| { r.name().clone() }
-        ))
+        let research_list = widgets::List::new(
+            self.research_list.iter().zip(self.research_colors.clone()).map(
+                |(r, c)| {
+                    Line::styled(
+                        r.name().clone(),
+                        Style::default().fg(c),
+                    )
+                }
+            )
+        )
             .block(
                 Block::default()
                     .title("Researches")
@@ -184,6 +200,34 @@ impl Component for ResearchMenu {
 
         f.render_stateful_widget(fields_list, chunks[0], &mut self.field_list_state);
         f.render_stateful_widget(research_list, chunks[1], &mut self.research_list_state);
+
+        let default_text = "No tech selected".to_string();
+
+        let info = widgets::Paragraph::new(
+            vec![
+                Line::from(
+                    Span::styled(
+                        self.info.get(&"name".to_string())
+                            .unwrap_or(&default_text),
+                        Style::default().fg(Color::LightBlue).add_modifier(Modifier::BOLD),
+                    )
+                ),
+                Line::from(
+                    Span::styled(
+                        self.info.get(&"field".to_string())
+                            .unwrap_or(&default_text),
+                        Style::default().fg(Color::White).add_modifier(Modifier::ITALIC),
+                    )
+                ),
+            ]
+        )
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded)
+            );
+
+        f.render_widget(info, chunks[2]);
 
         Ok(())
     }

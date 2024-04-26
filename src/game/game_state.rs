@@ -1,4 +1,7 @@
 use std::collections::HashMap;
+
+use ratatui::style::Color;
+
 use crate::game::celestial_bodies::CelestialBody;
 use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::game::research::{Research, ResearchField, ResearchProgress};
@@ -45,11 +48,35 @@ impl GameState {
     fn is_research_in_progress(&self, research: Research) -> bool {
         self.research_progress.iter().any(|p| p.id() == research.id())
     }
-    
-    fn get_research_progress_by_id(&self, id: String) -> ResearchProgress {
-        self.research_progress.iter().find(|p| { p.id().clone() == id }).unwrap().clone()
+
+    fn get_research_progress_by_id(&self, id: String) -> Option<ResearchProgress> {
+        self.research_progress.iter().find(|p| { p.id().clone() == id }).cloned()
     }
-    
+
+    fn research_requirements_satisfied(&self, research: Research) -> bool {
+        let all_of: Vec<Option<ResearchProgress>> = research.required_all().iter().map(
+            |r| {
+                self.get_research_progress_by_id(r.clone())
+            }
+        ).collect();
+
+        if all_of.contains(&None) { return false; }
+
+        let any_of: Vec<Option<ResearchProgress>> = research.required_any().iter().map(
+            |r| {
+                self.get_research_progress_by_id(r.clone())
+            }
+        ).collect();
+
+        (all_of.iter().all(|r| *r.clone().unwrap().is_finished()) &&
+            any_of.iter().any(|r| {
+                if let Some(res) = r.clone() {
+                    *res.is_finished()
+                } else {
+                    false
+                }
+            })) || (all_of.is_empty() && any_of.is_empty())
+    }
     pub fn get_research_info(&self, research: Research) -> HashMap<String, String> {
         let mut map = HashMap::from(
             [
@@ -64,17 +91,34 @@ impl GameState {
         );
         
         if self.is_research_in_progress(research.clone()) {
-            let progress = self.get_research_progress_by_id(research.id().clone());
-            map.insert(
-                "progress".to_string(),
-                progress.progress().to_string()
-            );
-            map.insert(
-                "is_finished".to_string(),
-                progress.is_finished().to_string()
-            );
+            let progress_option = self.get_research_progress_by_id(research.id().clone());
+            if let Some(progress) = progress_option {
+                map.insert(
+                    "progress".to_string(),
+                    progress.progress().to_string(),
+                );
+                map.insert(
+                    "is_finished".to_string(),
+                    progress.is_finished().to_string(),
+                );
+            }
         }
         
         map
+    }
+
+    pub fn get_research_color(&self, research: Research) -> Color {
+        if self.is_research_in_progress(research.clone()) {
+            let progress = self.get_research_progress_by_id(research.id().clone()).unwrap();
+            if *progress.is_finished() {
+                Color::LightCyan
+            } else {
+                Color::LightYellow
+            }
+        } else if self.research_requirements_satisfied(research.clone()) {
+            Color::White
+        } else {
+            Color::DarkGray
+        }
     }
 }

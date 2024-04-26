@@ -193,9 +193,19 @@ impl App {
             ).expect("Can send events");
           }
           Action::ScheduleLoadResearchesForField(ref field) => {
+            let researches = self.state.get_researches_by_field(field.clone());
+
             action_tx.send(
               Action::LoadResearchesForField(
-                self.state.get_researches_by_field(field.clone())
+                researches.clone()
+              )
+            ).expect("Can send events");
+
+            action_tx.send(
+              Action::LoadResearchColors(
+                researches.iter().map(|r| {
+                  self.state.get_research_color(r.clone())
+                }).collect()
               )
             ).expect("Can send events");
           }

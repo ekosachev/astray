@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+
+use ratatui::style::Color;
 use serde::{
   de::{Deserializer, Visitor},
   Deserialize, Serialize,
@@ -26,14 +28,23 @@ pub enum Action {
   SelectPrevious,
   Select,
   UpdateObjectView,
+
   LoadTabs(Vec<Tabs>),
+
   LoadResearchFields(Vec<ResearchField>),
+
   LoadResearches(Vec<Research>),
   ScheduleLoadResearchesForField(ResearchField),
+
   LoadResearchesForField(Vec<Research>),
   ScheduleLoadResearchInfo(Research),
+
   LoadResearchInfo(HashMap<String, String>),
+
+  LoadResearchColors(Vec<Color>),
+
   NavigateNextTab,
   NavigatePrevTab,
+
   LoadSystemView(SolarSystem),
 }
