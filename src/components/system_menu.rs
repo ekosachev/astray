@@ -45,7 +45,7 @@ impl SystemMenu {
 impl Component for SystemMenu {
     fn update(&mut self, action: Action) -> color_eyre::Result<Option<Action>> {
         match action {
-            Action::SelectBodyInSystemTree => {
+            Action::StartSelecting => {
                 self.is_focused = true;
             }
             Action::LoadSystemView(system) => {

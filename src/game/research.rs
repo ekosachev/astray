@@ -1,12 +1,13 @@
+use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Getters)]
 pub struct ResearchField {
     name: String,
     id: String,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Getters)]
 pub struct Research {
     name: String,
     id: String,
@@ -16,7 +17,7 @@ pub struct Research {
     required_all: Vec<String>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Getters)]
 pub struct ResearchProgress {
     id: String,
     progress: u32,
@@ -27,6 +28,12 @@ pub struct ResearchProgress {
 impl ResearchField {
     pub fn load_from_file(filepath: &str) -> Vec<Self> {
         serde_json::from_str(&std::fs::read_to_string(filepath).unwrap()).unwrap()
+    }
+}
+
+impl From<ResearchField> for String {
+    fn from(value: ResearchField) -> Self {
+        value.name
     }
 }
 

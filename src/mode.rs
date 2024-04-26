@@ -5,4 +5,6 @@ pub enum Mode {
   #[default]
   Main,
   SelectingBodyInSystemTree,
+  SelectingResearchField,
+  SelectingResearch,
 }

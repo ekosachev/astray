@@ -15,6 +15,7 @@ use crate::components::research_menu::ResearchMenu;
 use crate::components::system_menu::SystemMenu;
 use crate::components::top_menu::TopMenu;
 use crate::game::game_state::GameState;
+use crate::mode::Mode::{SelectingBodyInSystemTree, SelectingResearchField};
 use crate::tabs::Tabs;
 
 pub struct App {
@@ -68,6 +69,7 @@ impl App {
     // Preload tasks
     action_tx.send(Action::LoadSystemView(self.state.get_starting_system()))?;
     action_tx.send(Action::LoadTabs(self.tabs.clone()))?;
+    action_tx.send(Action::LoadResearchFields(self.state.get_research_fields()))?;
 
     let mut tui = tui::Tui::new()?.tick_rate(self.tick_rate).frame_rate(self.frame_rate);
     // tui.mouse(true);
@@ -166,11 +168,36 @@ impl App {
               }
             })?;
           },
-          Action::SelectBodyInSystemTree => {
-            self.mode = Mode::SelectingBodyInSystemTree;
+          Action::StartSelecting => {
+            self.mode = match self.tabs[self.cur_tab] {
+              Tabs::SystemView => { SelectingBodyInSystemTree }
+              Tabs::Research => { SelectingResearchField }
+            }
+          }
+          Action::ContinueSelecting => {
+            self.mode = match self.mode {
+              Mode::Main => { Mode::Main }
+              SelectingBodyInSystemTree => { Mode::Main }
+              SelectingResearchField => { Mode::SelectingResearch }
+              Mode::SelectingResearch => { Mode::Main }
+            }
           }
           Action::Select => {
             self.mode = Mode::Main;
+          }
+          Action::ScheduleLoadResearchInfo(ref research) => {
+            action_tx.send(
+              Action::LoadResearchInfo(
+                self.state.get_research_info(research.clone())
+              )
+            ).expect("Can send events");
+          }
+          Action::ScheduleLoadResearchesForField(ref field) => {
+            action_tx.send(
+              Action::LoadResearchesForField(
+                self.state.get_researches_by_field(field.clone())
+              )
+            ).expect("Can send events");
           }
           _ => {},
         }

@@ -5,11 +5,21 @@
       "<Ctrl-d>": "Quit", // Another way to quit
       "<Ctrl-c>": "Quit", // Yet another way to quit
       "<Ctrl-z>": "Suspend", // Suspend the application
-      "<Alt-s>": "SelectBodyInSystemTree",
+      "<Alt-s>": "StartSelecting",
       "<Tab>": "NavigateNextTab",
       "<BackTab>": "NavigatePrevTab",
     },
     "SelectingBodyInSystemTree": {
+      "<Up>": "SelectPrevious",
+      "<Down>": "SelectNext",
+      "<Enter>": "Select",
+    },
+    "SelectingResearchField": {
+      "<Up>": "SelectPrevious",
+      "<Down>": "SelectNext",
+      "<Enter>": "ContinueSelecting",
+    },
+    "SelectingResearch": {
       "<Up>": "SelectPrevious",
       "<Down>": "SelectNext",
       "<Enter>": "Select",

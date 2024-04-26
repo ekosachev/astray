@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use serde::{
   de::{Deserializer, Visitor},
   Deserialize, Serialize,
@@ -19,7 +20,8 @@ pub enum Action {
   Refresh,
   Error(String),
   Help,
-  SelectBodyInSystemTree,
+  StartSelecting,
+  ContinueSelecting,
   SelectNext,
   SelectPrevious,
   Select,
@@ -27,6 +29,10 @@ pub enum Action {
   LoadTabs(Vec<Tabs>),
   LoadResearchFields(Vec<ResearchField>),
   LoadResearches(Vec<Research>),
+  ScheduleLoadResearchesForField(ResearchField),
+  LoadResearchesForField(Vec<Research>),
+  ScheduleLoadResearchInfo(Research),
+  LoadResearchInfo(HashMap<String, String>),
   NavigateNextTab,
   NavigatePrevTab,
   LoadSystemView(SolarSystem),

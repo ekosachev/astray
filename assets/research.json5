@@ -5,7 +5,7 @@
     "cost": 100,
     "field": "energy-generation",
     "required_any": [],
-    "required_all": [],
+    "required_all": []
   },
   {
     "name": "Advanced plasma control",
@@ -13,7 +13,7 @@
     "cost": 150,
     "field": "energy-generation",
     "required_any": [],
-    "required_all": [ "fusion-energy-1" ],
+    "required_all": [ "fusion-energy-1" ]
   },
   {
     "name": "Ion thrusters",
@@ -21,7 +21,7 @@
     "cost": 100,
     "field": "sublight-propulsion",
     "required_any": [],
-    "required_all": [],
+    "required_all": []
   },
   {
     "name": "Automated mines",
@@ -29,6 +29,6 @@
     "cost": 75,
     "field": "resource-acquisition",
     "required_any": [],
-    "required_all": [],
+    "required_all": []
   }
 ]
