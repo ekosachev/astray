@@ -41,6 +41,7 @@ pub enum Action {
   ScheduleLoadResearchInfo(Research),
 
   LoadResearchInfo(HashMap<String, String>),
+  LoadDependencyInfo(Vec<Vec<(String, bool)>>),
 
   LoadResearchColors(Vec<Color>),
 

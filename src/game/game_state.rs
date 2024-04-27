@@ -146,6 +146,49 @@ impl GameState {
         map
     }
 
+    fn is_research_finished(&self, research: &Research) -> bool {
+        if let Some(progress) = self.get_research_progress_by_id(research.id().clone()) {
+            *progress.is_finished()
+        } else {
+            false
+        }
+    }
+
+    pub fn get_research_dependency_info(&self, research: Research) -> Vec<Vec<(String, bool)>> {
+        // All of
+        let mut all_of: Vec<(String, bool)> = self.research.iter()
+            .filter(|r| {
+                research.required_all().contains(r.id())
+            })
+            .cloned()
+            .map(|r| {
+                (r.name().clone(), self.is_research_finished(&r))
+            })
+            .collect();
+
+        if all_of.is_empty() {
+            all_of.push(("No technologies required".to_string(), true));
+        }
+
+        // Any of
+        let mut any_of: Vec<(String, bool)> = self.research.iter()
+            .filter(|r| {
+                research.required_any().contains(r.id())
+            })
+            .cloned()
+            .map(|r| {
+                (r.name().clone(), self.is_research_finished(&r))
+            })
+            .collect();
+
+        if any_of.is_empty() {
+            any_of.push(("No technologies required".to_string(), true));
+        }
+
+
+        vec![all_of, any_of]
+    }
+
     pub fn get_research_color(&self, research: Research) -> Color {
         if self.is_research_in_progress(research.clone()) {
             let progress = self.get_research_progress_by_id(research.id().clone()).unwrap();

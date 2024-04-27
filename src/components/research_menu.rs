@@ -23,7 +23,8 @@ pub struct ResearchMenu {
     research_selected: Option<Research>,
     field_list_focused: bool,
     research_list_focused: bool,
-    info: HashMap<String, String>
+    info: HashMap<String, String>,
+    dependency_info: Option<Vec<Vec<(String, bool)>>>,
 }
 
 impl Default for ResearchMenu {
@@ -43,6 +44,7 @@ impl Default for ResearchMenu {
             field_list_focused: false,
             research_list_focused: false,
             info: HashMap::new(),
+            dependency_info: None,
         }
     }
 }
@@ -62,6 +64,10 @@ impl Component for ResearchMenu {
 
             Action::LoadResearchFields(fields) => {
                 self.field_list = fields;
+            }
+
+            Action::LoadDependencyInfo(info) => {
+                self.dependency_info = Some(info)
             }
             
             Action::StartSelecting => {
@@ -240,24 +246,79 @@ impl Component for ResearchMenu {
             ],
         ).split(chunks[2]);
 
-        let info = widgets::Paragraph::new(
-            vec![
-                Line::from(
-                    Span::styled(
-                        self.info.get(&"name".to_string())
-                            .unwrap_or(&default_text),
-                        Style::default().fg(Color::LightBlue).add_modifier(Modifier::BOLD),
+
+        let mut info_text = vec![
+            Line::from(
+                Span::styled(
+                    self.info.get(&"name".to_string())
+                        .unwrap_or(&default_text),
+                    Style::default().fg(Color::LightBlue).add_modifier(Modifier::BOLD),
+                )
+            ),
+            Line::from(
+                Span::styled(
+                    self.info.get(&"field".to_string())
+                        .unwrap_or(&default_text),
+                    Style::default().fg(Color::White).add_modifier(Modifier::ITALIC),
+                )
+            ),
+        ];
+
+        if let Some(d) = self.dependency_info.clone() {
+            info_text.push(Line::from(""));
+            info_text.push(
+                Line::from("All of these technologies must be researched:")
+            );
+            // All of
+            d[0].iter().for_each(
+                |(name, is_finished)| {
+                    info_text.push(
+                        Line::from(
+                            if *is_finished {
+                                Span::styled(
+                                    format!("    ✔  {name}"),
+                                    Style::default().fg(Color::LightGreen),
+                                )
+                            } else {
+                                Span::styled(
+                                    format!("    ✘ {name}"),
+                                    Style::default().fg(Color::LightRed),
+                                )
+                            }
+                        )
                     )
-                ),
-                Line::from(
-                    Span::styled(
-                        self.info.get(&"field".to_string())
-                            .unwrap_or(&default_text),
-                        Style::default().fg(Color::White).add_modifier(Modifier::ITALIC),
+                }
+            );
+
+            info_text.push(Line::from(""));
+
+            info_text.push(
+                Line::from("At least one of these technologies must be researched:")
+            );
+
+            // All of
+            d[1].iter().for_each(
+                |(name, is_finished)| {
+                    info_text.push(
+                        Line::from(
+                            if *is_finished {
+                                Span::styled(
+                                    format!("    ✔  {name}"),
+                                    Style::default().fg(Color::LightGreen),
+                                )
+                            } else {
+                                Span::styled(
+                                    format!("    ✘ {name}"),
+                                    Style::default().fg(Color::LightRed),
+                                )
+                            }
+                        )
                     )
-                ),
-            ]
-        )
+                }
+            );
+        }
+
+        let info = widgets::Paragraph::new(info_text)
             .block(
                 Block::default()
                     .borders(Borders::ALL)

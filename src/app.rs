@@ -214,6 +214,11 @@ impl App {
                 self.state.get_research_info(research.clone())
               )
             ).expect("Can send events");
+            action_tx.send(
+              Action::LoadDependencyInfo(
+                self.state.get_research_dependency_info(research.clone())
+              )
+            ).expect("Can send events");
           }
           Action::ScheduleLoadResearchesForField(ref field) => {
             let researches = self.state.get_researches_by_field(field.clone());
