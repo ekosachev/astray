@@ -1,4 +1,7 @@
+use std::cmp::min;
+
 use derive_getters::Getters;
+use log::info;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Getters)]
@@ -46,5 +49,25 @@ impl Research {
 impl ResearchProgress {
     pub fn load_from_file(filepath: &str) -> Vec<Self> {
         serde_json::from_str(&std::fs::read_to_string(filepath).unwrap()).unwrap()
+    }
+
+    pub fn update(&mut self, cost: u32) {
+        self.progress = min(self.progress + self.speed, cost);
+        info!("{}: cost = {}; progress = {}", self.id, cost, self.progress);
+        if self.progress >= cost {
+            info!("research {} finished", self.id);
+            self.is_finished = true;
+        }
+    }
+}
+
+impl From<Research> for ResearchProgress {
+    fn from(value: Research) -> Self {
+        Self {
+            id: value.id,
+            progress: 0,
+            speed: 1,
+            is_finished: false,
+        }
     }
 }

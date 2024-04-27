@@ -1,5 +1,9 @@
+use std::thread;
+use std::time::Duration;
+
 use color_eyre::eyre::Result;
 use crossterm::event::KeyEvent;
+use log::info;
 use ratatui::prelude::Rect;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
@@ -30,6 +34,9 @@ pub struct App {
   pub state: GameState,
   tabs: Vec<Tabs>,
   cur_tab: usize,
+  game_unpaused: bool,
+  game_tickrate_ratio: u32,
+  game_tick_counter: u32,
 }
 
 impl App {
@@ -60,11 +67,15 @@ impl App {
         Tabs::Research,
       ],
       cur_tab: 0,
+      game_unpaused: true,
+      game_tickrate_ratio: 10,
+      game_tick_counter: 0,
     })
   }
 
   pub async fn run(&mut self) -> Result<()> {
     let (action_tx, mut action_rx) = mpsc::unbounded_channel();
+
 
     // Preload tasks
     action_tx.send(Action::LoadSystemView(self.state.get_starting_system()))?;
@@ -128,7 +139,19 @@ impl App {
         match action {
           Action::Tick => {
             self.last_tick_key_events.drain(..);
+            info!("{:?}", self.state.research_progress);
+            if self.game_unpaused {
+              if self.game_tick_counter == self.game_tickrate_ratio {
+                self.game_tick_counter = 0;
+                action_tx.send(Action::IngameTick)?;
+              } else {
+                self.game_tick_counter += 1;
+              }
+            }
           },
+          Action::IngameTick => {
+            self.state.tick();
+          }
           Action::Quit => self.should_quit = true,
           Action::Suspend => self.should_suspend = true,
           Action::Resume => self.should_suspend = false,
@@ -208,6 +231,9 @@ impl App {
                 }).collect()
               )
             ).expect("Can send events");
+          }
+          Action::StartResearch(ref r) => {
+            self.state.start_research(r.clone());
           }
           _ => {},
         }

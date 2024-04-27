@@ -2,7 +2,7 @@
   {
     "name": "Primitive stellarators",
     "id": "fusion-energy-1",
-    "cost": 100,
+    "cost": 3,
     "field": "energy-generation",
     "required_any": [],
     "required_all": []
@@ -10,7 +10,7 @@
   {
     "name": "Advanced plasma control",
     "id": "fusion-energy-2",
-    "cost": 150,
+    "cost": 5,
     "field": "energy-generation",
     "required_any": [],
     "required_all": [ "fusion-energy-1" ]

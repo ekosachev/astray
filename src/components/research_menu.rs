@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
+use ratatui::layout::Constraint::{Fill, Length};
 use ratatui::prelude::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets;
@@ -19,6 +20,7 @@ pub struct ResearchMenu {
     field_list: Vec<ResearchField>,
     research_list: Vec<Research>,
     research_colors: Vec<Color>,
+    research_selected: Option<Research>,
     field_list_focused: bool,
     research_list_focused: bool,
     info: HashMap<String, String>
@@ -37,6 +39,7 @@ impl Default for ResearchMenu {
             field_list: Vec::new(),
             research_list: Vec::new(),
             research_colors: Vec::new(),
+            research_selected: None,
             field_list_focused: false,
             research_list_focused: false,
             info: HashMap::new(),
@@ -47,6 +50,16 @@ impl Default for ResearchMenu {
 impl Component for ResearchMenu {
     fn update(&mut self, action: Action) -> color_eyre::Result<Option<Action>> {
         match action {
+            Action::IngameTick => {
+                if let Some(r) = self.research_selected.clone() {
+                    return Ok(
+                        Some(
+                            Action::ScheduleLoadResearchInfo(r)
+                        )
+                    )
+                }
+            },
+
             Action::LoadResearchFields(fields) => {
                 self.field_list = fields;
             }
@@ -104,10 +117,15 @@ impl Component for ResearchMenu {
             
             Action::Select => {
                 self.research_list_focused = false;
+
                 if !self.research_list.is_empty() {
+                    self.research_selected = Some(
+                        self.research_list[self.research_list_state.selected().unwrap()].clone()
+                    );
+
                     return Ok(Some(
                         Action::ScheduleLoadResearchInfo(
-                            self.research_list[self.research_list_state.selected().unwrap()].clone()
+                            self.research_selected.clone().unwrap()
                         )
                     ))
                 }
@@ -123,6 +141,16 @@ impl Component for ResearchMenu {
             
             Action::LoadResearchInfo(info) => {
                 self.info = info;
+            }
+
+            Action::MainAction => {
+                if let Some(r) = self.research_selected.clone() {
+                    return Ok(
+                        Some(
+                            Action::StartResearch(r)
+                        )
+                    )
+                }
             }
             
             _ => {}
@@ -203,6 +231,15 @@ impl Component for ResearchMenu {
 
         let default_text = "No tech selected".to_string();
 
+        let info_chunks = Layout::new(
+            Direction::Vertical,
+            vec![
+                Fill(1),
+                Length(5),
+                Length(3),
+            ],
+        ).split(chunks[2]);
+
         let info = widgets::Paragraph::new(
             vec![
                 Line::from(
@@ -227,7 +264,53 @@ impl Component for ResearchMenu {
                     .border_type(BorderType::Rounded)
             );
 
-        f.render_widget(info, chunks[2]);
+        let research_progress = widgets::Gauge::default()
+            .block(
+                Block::default()
+                    .title("Research Progress")
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded)
+            )
+            .gauge_style(
+                match self.info.get(
+                    &"progress".to_string()
+                ).unwrap_or(&"0".to_string()).parse::<u32>().unwrap() {
+                    0..=33 => { Color::Red },
+                    34..=67 => { Color::Yellow },
+                    68..=99 => { Color::Green },
+                    100 => { Color::Cyan },
+                    _ => { Color::Red },
+                }
+            )
+            .percent(
+                self.info.get(&"progress".to_string())
+                    .unwrap_or(&"0".to_string())
+                    .parse::<u16>()
+                    .unwrap_or(0)
+            )
+            .label(self.info.get(&"progress_text".to_string()).unwrap_or(&default_text));
+
+
+        f.render_widget(info, info_chunks[0]);
+        f.render_widget(research_progress, info_chunks[1]);
+
+        let help_key_style = Style::default().fg(Color::LightBlue).add_modifier(Modifier::BOLD);
+
+        let help = widgets::Paragraph::new(
+            Line::from(
+                vec![
+                    Span::from("Press "),
+                    Span::styled("<Alt+R>", help_key_style),
+                    Span::from(" to start researching the selected tech"),
+                ]
+            )
+        ).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
+        );
+
+        f.render_widget(help, info_chunks[2]);
 
         Ok(())
     }

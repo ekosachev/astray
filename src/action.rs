@@ -14,6 +14,7 @@ use crate::tabs::Tabs;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Display, Deserialize)]
 pub enum Action {
   Tick,
+  IngameTick,
   Render,
   Resize(u16, u16),
   Suspend,
@@ -47,4 +48,8 @@ pub enum Action {
   NavigatePrevTab,
 
   LoadSystemView(SolarSystem),
+
+  MainAction,
+
+  StartResearch(Research)
 }

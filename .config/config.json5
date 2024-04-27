@@ -8,6 +8,7 @@
       "<Alt-s>": "StartSelecting",
       "<Tab>": "NavigateNextTab",
       "<BackTab>": "NavigatePrevTab",
+      "<Alt-r>": "MainAction"
     },
     "SelectingBodyInSystemTree": {
       "<Up>": "SelectPrevious",
