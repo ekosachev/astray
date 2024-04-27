@@ -276,7 +276,7 @@ impl Component for ResearchMenu {
                         Line::from(
                             if *is_finished {
                                 Span::styled(
-                                    format!("    ✔  {name}"),
+                                    format!("    ✓ {name}"),
                                     Style::default().fg(Color::LightGreen),
                                 )
                             } else {
@@ -303,7 +303,7 @@ impl Component for ResearchMenu {
                         Line::from(
                             if *is_finished {
                                 Span::styled(
-                                    format!("    ✔  {name}"),
+                                    format!("    ✓ {name}"),
                                     Style::default().fg(Color::LightGreen),
                                 )
                             } else {
