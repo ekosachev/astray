@@ -23,34 +23,35 @@ pub enum Action {
   Refresh,
   Error(String),
   Help,
+  UpdateObjectView,
+
+  // Loading data
+  LoadTabs(Vec<Tabs>),
+  LoadResearchFields(Vec<ResearchField>),
+  LoadResearches(Vec<Research>),
+  LoadResearchesForField(Vec<Research>),
+  LoadResearchInfo(HashMap<String, String>),
+  LoadDependencyInfo(Vec<Vec<(String, bool)>>),
+  LoadResearchColors(Vec<Color>),
+  LoadSystemView(SolarSystem),
+  LoadColonizedPlanets(Vec<Planet>),
+
+  // Scheduling
+  ScheduleLoadResearchesForField(ResearchField),
+  ScheduleLoadResearchInfo(Research),
+
+  // Navigation
+  NavigateNextTab,
+  NavigatePrevTab,
+
+  // Form actions
   StartSelecting,
   ContinueSelecting,
   SelectNext,
   SelectPrevious,
   Select,
-  UpdateObjectView,
 
-  LoadTabs(Vec<Tabs>),
-
-  LoadResearchFields(Vec<ResearchField>),
-
-  LoadResearches(Vec<Research>),
-  ScheduleLoadResearchesForField(ResearchField),
-
-  LoadResearchesForField(Vec<Research>),
-  ScheduleLoadResearchInfo(Research),
-
-  LoadResearchInfo(HashMap<String, String>),
-  LoadDependencyInfo(Vec<Vec<(String, bool)>>),
-
-  LoadResearchColors(Vec<Color>),
-
-  NavigateNextTab,
-  NavigatePrevTab,
-
-  LoadSystemView(SolarSystem),
-
+  // Tab actions
   MainAction,
-
   StartResearch(Research)
 }

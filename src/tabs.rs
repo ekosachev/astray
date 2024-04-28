@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub enum Tabs {
     SystemView,
     Research,
+    Planets,
 }
 
 impl From<Tabs> for String {
@@ -11,6 +12,7 @@ impl From<Tabs> for String {
         match value {
             Tabs::SystemView => String::from("System View"),
             Tabs::Research => String::from("Research"),
+            Tabs::Planets => String::from("Colonized planets"),
         }
     }
 }

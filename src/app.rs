@@ -65,6 +65,7 @@ impl App {
       tabs: vec![
         Tabs::SystemView,
         Tabs::Research,
+        Tabs::Planets,
       ],
       cur_tab: 0,
       game_unpaused: true,
@@ -195,6 +196,7 @@ impl App {
             self.mode = match self.tabs[self.cur_tab] {
               Tabs::SystemView => { SelectingBodyInSystemTree }
               Tabs::Research => { SelectingResearchField }
+              _ => { Mode::Main }
             }
           }
           Action::ContinueSelecting => {

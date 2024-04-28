@@ -1,11 +1,15 @@
+use std::ops::RangeInclusive;
+
 use ordered_float::OrderedFloat;
 use rand::distributions::Distribution;
 use rand_distr::num_traits::ToPrimitive;
+use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 
 use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType, Displayable};
 use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::game::helpers::{consts, orbit_dynamics};
+use crate::game::helpers::astrophysics::calculate_habitable_zone_from_luminosity;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Planet {
@@ -14,6 +18,7 @@ pub struct Planet {
     radius: OrderedFloat<f32>,
     orbit_radius: OrderedFloat<f32>,
     orbit_period: OrderedFloat<f32>,
+    habitable_zone: RangeInclusive<OrderedFloat<f32>>,
 }
 
 impl CelestialBody for Planet {
@@ -34,9 +39,15 @@ impl CelestialBody for Planet {
         self.radius.to_f32().unwrap()
     }
 
-    // fn get_menu_color(&self) -> Color {
-    //     todo!()
-    // }
+    fn get_menu_color(&self) -> Color {
+        if self.is_inside_habitable_zone() {
+            Color::LightGreen
+        } else if self.habitable_zone.start() > &self.orbit_radius {
+            Color::LightYellow
+        } else {
+            Color::LightRed
+        }
+    }
 
     fn generate(host: SolarSystem) -> Self {
         let rng = rand::thread_rng();
@@ -79,12 +90,20 @@ impl CelestialBody for Planet {
         name.push(' ');
         name.push(letter);
 
+        let habitable_zone = calculate_habitable_zone_from_luminosity(
+            host.get_star().get_luminosity()
+        );
+
         Self {
             name,
             mass: OrderedFloat(mass),
             radius: OrderedFloat(radius),
-            orbit_radius: OrderedFloat(orbit_radius),
+            orbit_radius: OrderedFloat(orbit_radius.clone()),
             orbit_period: OrderedFloat(orbit_period),
+            habitable_zone: RangeInclusive::new(
+                OrderedFloat(*habitable_zone.start()),
+                OrderedFloat(*habitable_zone.end()),
+            )
         }
     }
 }
@@ -126,5 +145,11 @@ impl Displayable for Planet {
             ],
             
         ]
+    }
+}
+
+impl Planet {
+    pub fn is_inside_habitable_zone(&self) -> bool {
+        self.habitable_zone.contains(&self.orbit_radius)
     }
 }

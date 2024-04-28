@@ -20,6 +20,7 @@ pub mod consts {
 
 pub mod orbit_dynamics {
     use crate::game::helpers::consts;
+
     pub fn calculate_roche_limit(primary_mass: f32, secondary_mass: f32, secondary_radius: f32) -> f32 {
         secondary_mass * f32::cbrt(2f32 * primary_mass / secondary_mass)
     }
@@ -44,7 +45,8 @@ pub mod geometry {
 }
 
 pub mod astrophysics {
-    use std::ops::{Range, RangeInclusive};
+    use std::ops::RangeInclusive;
+
     use crate::game::helpers::consts;
 
     pub fn calculate_luminosity_from_mass(mass: f32) -> f32 {
@@ -88,12 +90,12 @@ pub mod astrophysics {
     }
 
     pub fn calculate_inner_radius_of_habitable_zone_from_luminosity(luminosity: f32) -> f32 {
-        let r_au = (luminosity / 1.1).sqrt(); // calculate radius in au
+        let r_au = (luminosity / consts::SUN_LUM_W / 1.1).sqrt(); // calculate radius in au
         r_au * consts::AU_M // convert to meters
     }
 
     pub fn calculate_outer_radius_of_habitable_zone_from_luminosity(luminosity: f32) -> f32 {
-        let r_au = (luminosity / 0.53).sqrt(); // calculate radius in au
+        let r_au = (luminosity / consts::SUN_LUM_W / 0.53).sqrt(); // calculate radius in au
         r_au * consts::AU_M // convert to meters
     }
     
@@ -125,5 +127,52 @@ pub mod astrophysics {
         }
         
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::game::helpers::astrophysics;
+    use crate::game::helpers::consts;
+
+    #[test]
+    fn test_temperature_calculation_001() {
+        assert_eq!(
+            astrophysics::calculate_temperature_from_luminosity_and_radius(
+                consts::SUN_LUM_W,
+                consts::SUN_R_M,
+            ) as i32,
+            5776
+        )
+    }
+
+    #[test]
+    fn test_temperature_calculation_002() {
+        assert_eq!(
+            astrophysics::calculate_temperature_from_luminosity_and_radius(
+                astrophysics::calculate_luminosity_from_mass(
+                    consts::SUN_M_KG * 0.5
+                ),
+                astrophysics::calculate_star_radius_from_mass(
+                    consts::SUN_M_KG * 0.5
+                ),
+            ) as i32,
+            3810
+        )
+    }
+
+    #[test]
+    fn test_temperature_calculation_003() {
+        assert_eq!(
+            astrophysics::calculate_temperature_from_luminosity_and_radius(
+                astrophysics::calculate_luminosity_from_mass(
+                    consts::SUN_M_KG * 1.5
+                ),
+                astrophysics::calculate_star_radius_from_mass(
+                    consts::SUN_M_KG * 1.5
+                ),
+            ) as i32,
+            7718
+        )
     }
 }

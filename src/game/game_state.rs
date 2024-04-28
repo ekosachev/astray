@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use std::ops::Deref;
 
+use libc::system;
 use log::info;
 use ratatui::style::Color;
 
 use crate::game::celestial_bodies::CelestialBody;
+use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::game::research::{Research, ResearchField, ResearchProgress};
 
@@ -13,15 +15,31 @@ pub struct GameState {
     research: Vec<Research>,
     pub research_progress: Vec<ResearchProgress>,
     research_fields: Vec<ResearchField>,
+    capital: Planet,
+    capital_system: SolarSystem,
+    colonized_planets: Vec<Planet>,
 }
 
 impl Default for GameState {
     fn default() -> Self {
+        let mut system: SolarSystem;
+        let capital_planet: Planet;
+        loop {
+            system = SolarSystem::generate(());
+            if let Some(planet) = system.has_planets_in_habitable_zone() {
+                capital_planet = planet;
+                break
+            }
+        }
+
         Self {
-            systems: vec![SolarSystem::generate(())],
+            systems: vec![system.clone()],
             research: Research::load_from_file("assets/research.json5"),
             research_progress: ResearchProgress::load_from_file("assets/research_progress.json5"),
             research_fields: ResearchField::load_from_file("assets/research_fields.json5"),
+            capital: capital_planet.clone(),
+            capital_system: system,
+            colonized_planets: vec![capital_planet]
         }
     }
 }

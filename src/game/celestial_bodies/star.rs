@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, constants, Displayable};
 use crate::game::helpers::{astrophysics, consts};
+use crate::game::helpers::astrophysics::{calculate_inner_radius_of_habitable_zone_from_luminosity, calculate_luminosity_from_mass, calculate_outer_radius_of_habitable_zone_from_luminosity};
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum StarClass {
@@ -42,6 +43,12 @@ pub struct Star {
     radius: OrderedFloat<f32>,
     surface_temp: OrderedFloat<f32>,
     
+}
+
+impl Star {
+    pub fn get_luminosity(&self) -> f32 {
+        calculate_luminosity_from_mass(self.get_mass())
+    }
 }
 
 impl CelestialBody for Star {
@@ -110,13 +117,22 @@ impl CelestialBody for Star {
             class,
             mass: OrderedFloat(mass),
             radius: OrderedFloat(radius),
-            surface_temp: OrderedFloat(radius),
+            surface_temp: OrderedFloat(surface_temp),
         }
     }
 }
 
 impl Displayable for Star {
     fn get_properties(&self) -> Vec<Vec<String>> {
+        let hz_inner = calculate_inner_radius_of_habitable_zone_from_luminosity(
+            self.get_luminosity()
+        );
+
+        let hz_outer = calculate_outer_radius_of_habitable_zone_from_luminosity(
+            self.get_luminosity()
+        );
+
+
         vec![
             vec![
                 String::from("Mass"),
@@ -138,6 +154,16 @@ impl Displayable for Star {
                 String::from("Temperature"),
                 format!("{:.3E} K", self.surface_temp),
                 format!("{:.3} solar temperatures", self.surface_temp / consts::SUN_T_K),
+            ],
+            vec![
+                String::from("Inner radius of habitable zone"),
+                format!("{:.3E} m", hz_inner),
+                format!("{:.3} AU", hz_inner / consts::AU_M),
+            ],
+            vec![
+                String::from("Outer radius of habitable zone"),
+                format!("{:.3E} m", hz_outer),
+                format!("{:.3} AU", hz_outer / consts::AU_M),
             ],
         ]
     }

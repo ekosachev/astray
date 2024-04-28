@@ -49,6 +49,12 @@ impl SolarSystem {
             0.0
         }
     }
+
+    pub fn has_planets_in_habitable_zone(&self) -> Option<Planet> {
+        self.planets.iter().find(
+            |p| p.is_inside_habitable_zone()
+        ).cloned()
+    }
 }
 
 impl CelestialBody for SolarSystem {
