@@ -4,7 +4,7 @@ use rand_distr;
 use rand_distr::num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 
-use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType, Orbitable};
+use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType, Displayable, Orbitable};
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::star::Star;
 use crate::game::helpers::astrophysics;
@@ -59,9 +59,6 @@ impl SolarSystem {
 
 impl CelestialBody for SolarSystem {
     type HostType = ();
-    fn get_name(&self) -> String {
-        self.star.get_name()
-    }
 
     fn get_type(&self) -> CelestialBodyType {
         CelestialBodyType::SolarSystem
@@ -111,5 +108,15 @@ impl Orbitable for SolarSystem {
 
     fn get_satellites(&self) -> Vec<Self::SatelliteType> {
         self.planets.clone()
+    }
+}
+
+impl Displayable for SolarSystem {
+    fn get_properties(&self) -> Vec<Vec<String>> {
+        Vec::new()
+    }
+
+    fn get_name(&self) -> String {
+        self.star.get_name()
     }
 }

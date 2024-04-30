@@ -53,9 +53,6 @@ impl Star {
 
 impl CelestialBody for Star {
     type HostType = ();
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
 
     fn get_type(&self) -> CelestialBodyType {
         CelestialBodyType::Star
@@ -67,18 +64,6 @@ impl CelestialBody for Star {
 
     fn get_radius(&self) -> f32 {
         self.radius.to_f32().unwrap()
-    }
-
-    fn get_menu_color(&self) -> style::Color {
-        match self.class {
-            StarClass::O => { style::Color::Indexed(27) }
-            StarClass::B => { style::Color::Indexed(33) }
-            StarClass::A => { style::Color::Indexed(195) }
-            StarClass::F => { style::Color::Indexed(231) }
-            StarClass::G => { style::Color::Indexed(230) }
-            StarClass::K => { style::Color::Indexed(216) }
-            StarClass::M => { style::Color::Indexed(160) }
-        }
     }
 
     fn generate(host: ()) -> Self {
@@ -166,5 +151,21 @@ impl Displayable for Star {
                 format!("{:.3} AU", hz_outer / consts::AU_M),
             ],
         ]
+    }
+
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+    fn get_menu_color(&self) -> style::Color {
+        match self.class {
+            StarClass::O => { style::Color::Indexed(27) }
+            StarClass::B => { style::Color::Indexed(33) }
+            StarClass::A => { style::Color::Indexed(195) }
+            StarClass::F => { style::Color::Indexed(231) }
+            StarClass::G => { style::Color::Indexed(230) }
+            StarClass::K => { style::Color::Indexed(216) }
+            StarClass::M => { style::Color::Indexed(160) }
+        }
     }
 }

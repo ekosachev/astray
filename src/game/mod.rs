@@ -3,3 +3,4 @@ mod helpers;
 pub mod research;
 pub mod game_state;
 mod colony;
+mod resource;

@@ -23,9 +23,6 @@ pub struct Planet {
 
 impl CelestialBody for Planet {
     type HostType = SolarSystem;
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
 
     fn get_type(&self) -> CelestialBodyType {
         CelestialBodyType::Planet
@@ -37,16 +34,6 @@ impl CelestialBody for Planet {
 
     fn get_radius(&self) -> f32 {
         self.radius.to_f32().unwrap()
-    }
-
-    fn get_menu_color(&self) -> Color {
-        if self.is_inside_habitable_zone() {
-            Color::LightGreen
-        } else if self.habitable_zone.start() > &self.orbit_radius {
-            Color::LightYellow
-        } else {
-            Color::LightRed
-        }
     }
 
     fn generate(host: SolarSystem) -> Self {
@@ -145,6 +132,20 @@ impl Displayable for Planet {
             ],
             
         ]
+    }
+
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+    fn get_menu_color(&self) -> Color {
+        if self.is_inside_habitable_zone() {
+            Color::LightGreen
+        } else if self.habitable_zone.start() > &self.orbit_radius {
+            Color::LightYellow
+        } else {
+            Color::LightRed
+        }
     }
 }
 

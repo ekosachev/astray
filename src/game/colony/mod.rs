@@ -1,2 +1,2 @@
 mod colony;
-mod building;
+pub mod building;

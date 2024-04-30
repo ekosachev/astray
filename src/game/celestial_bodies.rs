@@ -1,6 +1,4 @@
-use std::fs;
 use std::iter::Iterator;
-use ratatui::text::Line;
 
 pub mod star;
 pub mod planet;
@@ -8,6 +6,7 @@ pub mod solar_system;
 
 mod constants {
     use std::fs;
+
     use once_cell::sync::Lazy;
 
     pub static STAR_NAMES: Lazy<Vec<String>> = Lazy::new(|| {
@@ -32,16 +31,8 @@ pub enum CelestialBodyType {
 /// actions on it.
 pub trait CelestialBody {
     type HostType;
-    
-    /// Get the name of the celestial body that will be displayed in the UI
-    /// 
-    /// # Arguments
-    /// * `self` - A reference to the celestial body
-    /// 
-    /// # Returns
-    /// * String - The name of the celestial body
-    fn get_name(&self) -> String;
-    
+
+
     /// Get the type of the celestial body
     /// 
     /// # Arguments
@@ -68,16 +59,7 @@ pub trait CelestialBody {
     /// # Returns
     /// * f32 - The radius of the celestial body
     fn get_radius(&self) -> f32;
-    
-    /// Get the menu color of the celestial body
-    /// 
-    /// # Arguments
-    /// * `self` - A reference to the celestial body
-    /// 
-    /// # Returns
-    /// * ratatui::style::Color - The menu color of the celestial body
-    fn get_menu_color(&self) -> ratatui::style::Color { ratatui::style::Color::White }
-    
+
     /// Generate a new instance of the celestial body based on a host body if nescessary
     /// 
     /// # Arguments
@@ -114,4 +96,8 @@ pub trait CanOrbit {
 
 pub trait Displayable {
     fn get_properties(&self) -> Vec<Vec<String>>;
+
+    fn get_name(&self) -> String;
+
+    fn get_menu_color(&self) -> ratatui::style::Color { ratatui::style::Color::White }
 }
