@@ -2,7 +2,7 @@ use ratatui::prelude::Color;
 
 use crate::game::celestial_bodies::Displayable;
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum FactoryType {
     // Primary resources to secondary resources
     ElectronicsFactory,
@@ -38,7 +38,25 @@ impl Into<String> for FactoryType {
     }
 }
 
-#[derive(Clone)]
+impl FactoryType {
+    pub fn get_construction_time(&self) -> u32 {
+        match self {
+            FactoryType::ElectronicsFactory => { 75 }
+            FactoryType::KeroseneFactory => { 75 }
+            FactoryType::HeatResistantAlloyFactory => { 75 }
+            FactoryType::SuperconductorsFactory => { 75 }
+            FactoryType::PlasticsFactory => { 75 }
+            FactoryType::CompositesFactory => { 100 }
+            FactoryType::RadioactivePelletsFactory => { 75 }
+            FactoryType::EngineNozzlesFactory => { 130 }
+            FactoryType::MicroprocessorsFactory => { 130 }
+            FactoryType::SensorsFactory => { 130 }
+            FactoryType::FuelRodsFactory => { 130 }
+        }
+    }
+}
+
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum BuildingType {
     Mine,
     Factory(FactoryType),
@@ -78,6 +96,26 @@ impl Displayable for BuildingType {
 
     fn get_menu_color(&self) -> Color {
         self.clone().into()
+    }
+}
+
+impl BuildingType {
+    pub fn get_construction_time(&self) -> u32 {
+        match self {
+            BuildingType::Mine => { 100 }
+            BuildingType::Factory(ft) => { ft.get_construction_time() }
+            BuildingType::Spaceport => { 150 }
+            BuildingType::DryDock => { 130 }
+        }
+    }
+
+    pub fn is_producing_resources(&self) -> bool {
+        match self {
+            BuildingType::Mine => { false }
+            BuildingType::Factory(_) => { true }
+            BuildingType::Spaceport => { false }
+            BuildingType::DryDock => { false }
+        }
     }
 }
 

@@ -26,7 +26,7 @@ libc = "0.2.148"
 log = "0.4.20"
 ordered-float = { version = "4.2.0", features = ["serde"] }
 pretty_assertions = "1.4.0"
-rand= "0.8.5"
+rand= { version = "0.8.5", features = ["alloc"] }
 rand_distr = "0.4.3"
 ratatui = { version = "0.26.0", features = ["serde", "macros"] }
 serde = { version = "1.0.188", features = ["derive"] }

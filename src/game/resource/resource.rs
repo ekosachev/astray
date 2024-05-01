@@ -1,3 +1,7 @@
+use derive_getters::Getters;
+use rand::{prelude::*, Rng, thread_rng};
+use rand::distributions::WeightedIndex;
+
 use crate::game::colony::building::{BuildingType, FactoryType};
 
 pub enum ResourceGrade {
@@ -6,6 +10,7 @@ pub enum ResourceGrade {
     Component,
 }
 
+#[derive(Eq, PartialEq, Hash, Clone)]
 pub enum ResourceType {
     // Primary resources
     PRLightMetals,
@@ -57,6 +62,7 @@ impl Into<ResourceGrade> for ResourceType {
     }
 }
 
+#[derive(Getters, Clone)]
 pub struct ResourceTransaction {
     resource_type: ResourceType,
     amount: i32,
@@ -160,5 +166,61 @@ impl Into<Vec<ResourceTransaction>> for FactoryType {
                 ]
             }
         }
+    }
+}
+
+pub struct ResourceDeposit {
+    amounts: Vec<(ResourceType, i32)>,
+}
+
+impl ResourceDeposit {
+    pub fn generate_for_planet() -> Self {
+        let mut values = [
+            (ResourceType::PRLightMetals, 1),
+            (ResourceType::PRHeavyMetals, 1),
+            (ResourceType::PRPreciousMetals, 1),
+            (ResourceType::PRWater, 1),
+            (ResourceType::PRCrudeOil, 1),
+            (ResourceType::PRSilicon, 1),
+        ];
+
+        let mut rng = thread_rng();
+
+        for _ in 0..(100 - values.len()) {
+            let index = match rng.gen_range(1..=100) {
+                1..=20 => 0,
+                21..=30 => 1,
+                31..=35 => 2,
+                36..=60 => 3,
+                61..=70 => 4,
+                71..=100 => 5,
+
+                _ => unreachable!()
+            };
+
+            values[index].1 += 1;
+        }
+
+        Self {
+            amounts: Vec::from(values)
+        }
+    }
+
+    pub fn sample(&self) -> ResourceType {
+        let mut rng = thread_rng();
+
+        let weights: Vec<i32> = self.amounts.iter().map(
+            |(rt, w)| { w.clone() }
+        ).collect();
+
+        let choices: Vec<ResourceType> = self.amounts.iter().map(
+            |(rt, w)| { rt.clone() }
+        ).collect();
+
+        let mut dist = WeightedIndex::new(
+            weights
+        ).unwrap();
+
+        choices[dist.sample(&mut rng)].clone()
     }
 }

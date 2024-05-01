@@ -9,6 +9,7 @@ use crate::game::celestial_bodies::CelestialBody;
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::game::research::{Research, ResearchField, ResearchProgress};
+use crate::game::resource::resource_manager::ResourceManager;
 
 pub struct GameState {
     systems: Vec<SolarSystem>,
@@ -18,6 +19,7 @@ pub struct GameState {
     capital: Planet,
     capital_system: SolarSystem,
     colonized_planets: Vec<Planet>,
+    resource_manager: ResourceManager,
 }
 
 impl Default for GameState {
@@ -39,7 +41,8 @@ impl Default for GameState {
             research_fields: ResearchField::load_from_file("assets/research_fields.json5"),
             capital: capital_planet.clone(),
             capital_system: system,
-            colonized_planets: vec![capital_planet]
+            colonized_planets: vec![capital_planet],
+            resource_manager: ResourceManager::new(),
         }
     }
 }
