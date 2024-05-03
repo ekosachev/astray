@@ -5,9 +5,10 @@ use libc::system;
 use log::info;
 use ratatui::style::Color;
 
-use crate::game::celestial_bodies::CelestialBody;
+use crate::game::celestial_bodies::{CelestialBody, Displayable};
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::solar_system::SolarSystem;
+use crate::game::colony::colony::Colony;
 use crate::game::research::{Research, ResearchField, ResearchProgress};
 use crate::game::resource::resource_manager::ResourceManager;
 
@@ -18,8 +19,9 @@ pub struct GameState {
     research_fields: Vec<ResearchField>,
     capital: Planet,
     capital_system: SolarSystem,
-    colonized_planets: Vec<Planet>,
-    resource_manager: ResourceManager,
+    colonies: Vec<Colony>,
+    resource_tick_ratio: u32,
+    resource_tick_counter: u32,
 }
 
 impl Default for GameState {
@@ -41,8 +43,14 @@ impl Default for GameState {
             research_fields: ResearchField::load_from_file("assets/research_fields.json5"),
             capital: capital_planet.clone(),
             capital_system: system,
-            colonized_planets: vec![capital_planet],
-            resource_manager: ResourceManager::new(),
+            colonies: vec![
+                Colony::new(
+                    capital_planet.get_name(),
+                    5_000,
+                )
+            ],
+            resource_tick_counter: 0,
+            resource_tick_ratio: 10,
         }
     }
 }
@@ -50,6 +58,7 @@ impl Default for GameState {
 impl GameState {
     pub fn tick(&mut self) {
         self.update_research();
+        self.update_colonies();
     }
 
     pub fn new() -> Self {
@@ -250,6 +259,15 @@ impl GameState {
             info!("Starting research {}", r.id());
             self.research_progress.push(ResearchProgress::from(r));
             info!("{:?}", self.research_progress);
+        }
+    }
+
+    fn update_colonies(&mut self) {
+        self.colonies.iter_mut().for_each(|c| c.tick());
+        self.resource_tick_counter += 1;
+        if self.resource_tick_ratio == self.resource_tick_counter {
+            self.resource_tick_counter = 0;
+            self.colonies.iter_mut().for_each(|c| c.resource_tick());
         }
     }
 }

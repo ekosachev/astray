@@ -8,6 +8,7 @@ use serde::{
 use strum::Display;
 
 use crate::game::celestial_bodies::solar_system::SolarSystem;
+use crate::game::colony::colony::Colony;
 use crate::game::research::{Research, ResearchField};
 use crate::tabs::Tabs;
 
@@ -34,7 +35,7 @@ pub enum Action {
   LoadDependencyInfo(Vec<Vec<(String, bool)>>),
   LoadResearchColors(Vec<Color>),
   LoadSystemView(SolarSystem),
-  LoadColonizedPlanets(Vec<Planet>),
+  LoadColonizedPlanets(Vec<Colony>),
 
   // Scheduling
   ScheduleLoadResearchesForField(ResearchField),

@@ -95,9 +95,9 @@ pub trait CanOrbit {
 }
 
 pub trait Displayable {
-    fn get_properties(&self) -> Vec<Vec<String>>;
-
     fn get_name(&self) -> String;
+
+    fn get_properties(&self) -> Vec<Vec<String>> { Vec::new() }
 
     fn get_menu_color(&self) -> ratatui::style::Color { ratatui::style::Color::White }
 }

@@ -24,7 +24,9 @@ impl Default for PlanetsMenu {
 }
 
 impl Component for PlanetsMenu {
-    fn update(&mut self, action: Action) -> color_eyre::Result<Option<Action>> {}
+    fn update(&mut self, action: Action) -> color_eyre::Result<Option<Action>> {
+        Ok(None)
+    }
     fn draw(&mut self, f: &mut Frame<'_>, area: Rect) -> color_eyre::Result<()> {
         Ok(())
     }

@@ -1,6 +1,7 @@
 use derive_getters::Getters;
 use rand::{prelude::*, Rng, thread_rng};
 use rand::distributions::WeightedIndex;
+use serde::{Deserialize, Serialize};
 
 use crate::game::colony::building::{BuildingType, FactoryType};
 
@@ -10,7 +11,8 @@ pub enum ResourceGrade {
     Component,
 }
 
-#[derive(Eq, PartialEq, Hash, Clone)]
+
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone, Hash)]
 pub enum ResourceType {
     // Primary resources
     PRLightMetals,
@@ -169,6 +171,7 @@ impl Into<Vec<ResourceTransaction>> for FactoryType {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone)]
 pub struct ResourceDeposit {
     amounts: Vec<(ResourceType, i32)>,
 }

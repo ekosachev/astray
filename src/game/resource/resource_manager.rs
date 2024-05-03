@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+
 use crate::game::resource::resource::{ResourceTransaction, ResourceType};
+
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone)]
 
 pub struct ResourceManager {
     resources: HashMap<ResourceType, u32>,

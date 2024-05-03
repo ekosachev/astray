@@ -1,8 +1,9 @@
 use ratatui::prelude::Color;
+use serde::{Deserialize, Serialize};
 
 use crate::game::celestial_bodies::Displayable;
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone, Hash)]
 pub enum FactoryType {
     // Primary resources to secondary resources
     ElectronicsFactory,
@@ -56,7 +57,7 @@ impl FactoryType {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone, Hash)]
 pub enum BuildingType {
     Mine,
     Factory(FactoryType),

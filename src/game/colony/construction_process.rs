@@ -1,10 +1,11 @@
 use std::cmp::min;
 
 use derive_getters::Getters;
+use serde::{Deserialize, Serialize};
 
 use crate::game::colony::building::BuildingType;
 
-#[derive(Getters)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone, Getters)]
 pub struct ConstructionProcess {
     building_type: BuildingType,
     progress: u32,
