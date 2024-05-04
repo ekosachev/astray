@@ -15,7 +15,7 @@ pub mod system_menu;
 pub mod top_menu;
 pub mod research_menu;
 mod utils;
-mod planets_menu;
+pub mod colonies_menu;
 
 /// `Component` is a trait that represents a visual and interactive element of the user interface.
 /// Implementors of this trait can be registered with the main application loop and will be able to receive events,

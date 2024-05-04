@@ -270,4 +270,8 @@ impl GameState {
             self.colonies.iter_mut().for_each(|c| c.resource_tick());
         }
     }
+
+    pub fn get_colonies(&self) -> Vec<Colony> {
+        self.colonies.clone()
+    }
 }

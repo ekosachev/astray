@@ -24,6 +24,11 @@
       "<Up>": "SelectPrevious",
       "<Down>": "SelectNext",
       "<Enter>": "Select",
+    },
+    "SelectingColony": {
+      "<Up>": "SelectPrevious",
+      "<Down>": "SelectNext",
+      "<Enter>": "Select",
     }
   }
 }

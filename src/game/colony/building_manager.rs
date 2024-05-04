@@ -118,4 +118,15 @@ impl BuildingManager {
             }
         }
     }
+
+    pub fn get_buildings(&self) -> Vec<(String, u32)> {
+        let pairs: Vec<(String, u32)> = self.buildings.iter().map(
+            |(bt, a)| {
+                let bt_s: String = bt.clone().into();
+                (bt_s, a.clone())
+            }
+        ).collect();
+
+        pairs
+    }
 }

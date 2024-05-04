@@ -7,4 +7,5 @@ pub enum Mode {
   SelectingBodyInSystemTree,
   SelectingResearchField,
   SelectingResearch,
+  SelectingColony,
 }

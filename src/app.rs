@@ -15,6 +15,7 @@ use crate::{
   mode::Mode,
   tui,
 };
+use crate::components::colonies_menu::ColoniesMenu;
 use crate::components::research_menu::ResearchMenu;
 use crate::components::system_menu::SystemMenu;
 use crate::components::top_menu::TopMenu;
@@ -45,6 +46,8 @@ impl App {
     let system_tree = SystemMenu::default();
     let research_menu = ResearchMenu::default();
     let top_menu = TopMenu::default();
+    let colonies_menu = ColoniesMenu::default();
+
     let config = Config::new()?;
     let mode = Mode::Main;
     Ok(Self {
@@ -54,6 +57,7 @@ impl App {
         Box::new(top_menu),
         Box::new(system_tree),
         Box::new(research_menu),
+        Box::new(colonies_menu),
         Box::new(fps),
       ],
       should_quit: false,
@@ -65,7 +69,7 @@ impl App {
       tabs: vec![
         Tabs::SystemView,
         Tabs::Research,
-        Tabs::Planets,
+        Tabs::Colonies,
       ],
       cur_tab: 0,
       game_unpaused: true,
@@ -82,6 +86,7 @@ impl App {
     action_tx.send(Action::LoadSystemView(self.state.get_starting_system()))?;
     action_tx.send(Action::LoadTabs(self.tabs.clone()))?;
     action_tx.send(Action::LoadResearchFields(self.state.get_research_fields()))?;
+    action_tx.send(Action::LoadColonies(self.state.get_colonies()))?;
 
     let mut tui = tui::Tui::new()?.tick_rate(self.tick_rate).frame_rate(self.frame_rate);
     // tui.mouse(true);
@@ -196,15 +201,13 @@ impl App {
             self.mode = match self.tabs[self.cur_tab] {
               Tabs::SystemView => { SelectingBodyInSystemTree }
               Tabs::Research => { SelectingResearchField }
-              _ => { Mode::Main }
+              Tabs::Colonies => { Mode::SelectingColony }
             }
           }
           Action::ContinueSelecting => {
             self.mode = match self.mode {
-              Mode::Main => { Mode::Main }
-              SelectingBodyInSystemTree => { Mode::Main }
               SelectingResearchField => { Mode::SelectingResearch }
-              Mode::SelectingResearch => { Mode::Main }
+              _ => { Mode::Main }
             }
           }
           Action::Select => {

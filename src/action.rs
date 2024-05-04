@@ -35,7 +35,7 @@ pub enum Action {
   LoadDependencyInfo(Vec<Vec<(String, bool)>>),
   LoadResearchColors(Vec<Color>),
   LoadSystemView(SolarSystem),
-  LoadColonizedPlanets(Vec<Colony>),
+  LoadColonies(Vec<Colony>),
 
   // Scheduling
   ScheduleLoadResearchesForField(ResearchField),

@@ -43,6 +43,14 @@ impl Colony {
             &mut self.resource_manager,
         );
     }
+
+    pub fn get_population(&self) -> i32 {
+        self.population
+    }
+
+    pub fn get_buildings(&self) -> Vec<(String, u32)> {
+        self.building_manager.get_buildings()
+    }
 }
 
 impl Displayable for Colony {
