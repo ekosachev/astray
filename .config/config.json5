@@ -29,6 +29,11 @@
       "<Up>": "SelectPrevious",
       "<Down>": "SelectNext",
       "<Enter>": "Select",
+    },
+    "SelectingBuilding": {
+      "<Up>": "SelectPrevious",
+      "<Down>": "SelectNext",
+      "<Enter>": "Select",
     }
   }
 }

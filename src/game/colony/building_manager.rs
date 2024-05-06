@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
+use log::info;
+use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 
+use crate::game::celestial_bodies::Displayable;
 use crate::game::colony::building::{BuildingType, FactoryType};
 use crate::game::colony::construction_process::ConstructionProcess;
 use crate::game::resource::resource::{ResourceDeposit, ResourceTransaction};
@@ -34,7 +37,7 @@ impl Default for BuildingManager {
                 (BuildingType::Factory(FactoryType::FuelRodsFactory), 0),
             ]),
             construction: Vec::new(),
-            construction_limit: 1,
+            construction_limit: 10,
         }
     }
 }
@@ -58,35 +61,31 @@ impl BuildingManager {
     pub fn start_construction(
         &mut self,
         building_type: BuildingType,
-        resource_manager: ResourceManager,
     ) {
         if self.construction.len() < (self.construction_limit as usize) {
             self.construction.push(
                 ConstructionProcess::from(building_type)
             )
         }
+        info!("Started construction");
     }
 
     pub fn update_construction(&mut self) {
-        let mut new_construction: Vec<ConstructionProcess> = Vec::new();
-
-        for mut process in self.construction.clone() {
-            let is_finished = process.update(1);
+        if !self.construction.is_empty() {
+            let is_finished = self.construction[0].update(1);
             if is_finished {
-                self.add_building(process.building_type());
-            } else {
-                new_construction.push(process);
+                let building = self.construction[0].building_type();
+                *self.buildings.get_mut(building).unwrap() += 1;
+                self.construction.remove(0);
             }
         }
-
-        self.construction = new_construction;
     }
 
     pub fn update_production(&self, manager: &mut ResourceManager) {
         let transactions: Vec<Vec<ResourceTransaction>> = self.buildings
             .iter().filter(
             |(bt, v)| {
-                bt.is_producing_resources()
+                bt.is_producing_resources() && self.buildings.get(bt).unwrap_or(&0) > &0u32
             }).map(|(bt, v)| {
             if let BuildingType::Factory(factory_type) = bt {
                 factory_type.clone().into()
@@ -119,14 +118,26 @@ impl BuildingManager {
         }
     }
 
-    pub fn get_buildings(&self) -> Vec<(String, u32)> {
-        let pairs: Vec<(String, u32)> = self.buildings.iter().map(
-            |(bt, a)| {
-                let bt_s: String = bt.clone().into();
-                (bt_s, a.clone())
-            }
+    pub fn get_buildings(&self) -> Vec<(String, u32, Color)> {
+        let raw: Vec<(BuildingType, Color)> = BuildingType::get_variants();
+
+        let res: Vec<(String, u32, Color)> = raw.iter().map(|(building_type, color)|
+            (
+                building_type.get_name(),
+                *self.buildings.get(building_type).unwrap_or(&0),
+                color.clone()
+            )
         ).collect();
 
-        pairs
+        res
+    }
+
+    pub fn get_construction(&self) -> Vec<(String, u32)> {
+        self.construction.iter().map(|p| {
+            let building: String = p.building_type().clone().into();
+            let progress: u32 = p.get_percentage();
+
+            (building, progress)
+        }).collect()
     }
 }

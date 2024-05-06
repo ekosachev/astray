@@ -8,7 +8,6 @@ use serde::{
 use strum::Display;
 
 use crate::game::celestial_bodies::solar_system::SolarSystem;
-use crate::game::colony::colony::Colony;
 use crate::game::research::{Research, ResearchField};
 use crate::tabs::Tabs;
 
@@ -35,11 +34,16 @@ pub enum Action {
   LoadDependencyInfo(Vec<Vec<(String, bool)>>),
   LoadResearchColors(Vec<Color>),
   LoadSystemView(SolarSystem),
-  LoadColonies(Vec<Colony>),
+  LoadColonies(Vec<String>),
+  LoadColonyInfo(Vec<(String, Color)>),
+  LoadColonyBuildings(Vec<(String, u32, Color)>),
+  LoadConstructionInfo(Vec<(String, u32)>),
 
   // Scheduling
   ScheduleLoadResearchesForField(ResearchField),
   ScheduleLoadResearchInfo(Research),
+  ScheduleLoadColonyInfo(String),
+  ScheduleLoadConstructionInfo(String),
 
   // Navigation
   NavigateNextTab,
@@ -54,5 +58,7 @@ pub enum Action {
 
   // Tab actions
   MainAction,
-  StartResearch(Research)
+  StartResearch(Research),
+  StartSelectingBuilding,
+  StartConstruction((String /* Colony name */, String /* Building type name */))
 }

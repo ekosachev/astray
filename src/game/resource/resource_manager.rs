@@ -76,4 +76,12 @@ impl ResourceManager {
             }
         )
     }
+
+    pub fn get_resources(&self) -> Vec<(ResourceType, u32)> {
+        self.resources.iter().map(
+            |(k, v)| {
+                (k.clone(), *v)
+            }
+        ).collect()
+    }
 }

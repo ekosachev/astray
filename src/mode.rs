@@ -8,4 +8,5 @@ pub enum Mode {
   SelectingResearchField,
   SelectingResearch,
   SelectingColony,
+  SelectingBuilding,
 }

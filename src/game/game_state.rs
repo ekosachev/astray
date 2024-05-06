@@ -8,6 +8,7 @@ use ratatui::style::Color;
 use crate::game::celestial_bodies::{CelestialBody, Displayable};
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::solar_system::SolarSystem;
+use crate::game::colony::building::BuildingType;
 use crate::game::colony::colony::Colony;
 use crate::game::research::{Research, ResearchField, ResearchProgress};
 use crate::game::resource::resource_manager::ResourceManager;
@@ -50,7 +51,7 @@ impl Default for GameState {
                 )
             ],
             resource_tick_counter: 0,
-            resource_tick_ratio: 10,
+            resource_tick_ratio: 2,
         }
     }
 }
@@ -273,5 +274,14 @@ impl GameState {
 
     pub fn get_colonies(&self) -> Vec<Colony> {
         self.colonies.clone()
+    }
+
+    pub fn start_construction(&mut self, colony: Colony, building: BuildingType) {
+        self.colonies.iter_mut().find(|c| c == &&colony).unwrap()
+            .start_construction(building)
+    }
+
+    pub fn get_colony_by_name(&self, name: String) -> Option<Colony> {
+        self.colonies.iter().find(|c| c.get_name() == name).cloned()
     }
 }

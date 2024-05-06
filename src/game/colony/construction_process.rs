@@ -29,6 +29,10 @@ impl ConstructionProcess {
             self.construction_time,
         );
 
-        self.progress == self.construction_time
+        self.progress >= self.construction_time
+    }
+
+    pub fn get_percentage(&self) -> u32 {
+        (self.progress as f32 / self.construction_time as f32 * 100.0) as u32
     }
 }

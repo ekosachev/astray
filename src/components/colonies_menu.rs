@@ -7,16 +7,19 @@ use ratatui::widgets::{Block, Borders, BorderType, ListDirection, ListState, Par
 use crate::action::Action;
 use crate::components::Component;
 use crate::components::utils::widget_utils;
-use crate::game::celestial_bodies::Displayable;
-use crate::game::colony::colony::Colony;
 use crate::tabs::Tabs;
 use crate::tui::Frame;
 
 pub struct ColoniesMenu {
-    colonies: Vec<Colony>,
+    colonies: Vec<String>,
     list_state: ListState,
+    selected_colony: Option<String>,
     is_focused: bool,
-    selected_colony: Option<Colony>,
+    is_building_focused: bool,
+    buildings_list_state: ListState,
+    buildings_list: Vec<(String, u32, Color)>,
+    info: Vec<(String, Color)>,
+    construction_info: Vec<(String, u32)>
 }
 
 impl Default for ColoniesMenu {
@@ -27,7 +30,12 @@ impl Default for ColoniesMenu {
             colonies: Vec::new(),
             list_state: state,
             is_focused: false,
+            is_building_focused: false,
             selected_colony: None,
+            buildings_list_state: ListState::default(),
+            buildings_list: vec![(String::from("Select a colony"), 0, Color::Red)],
+            info: vec![(String::from("Select a colony"), Color::Red)],
+            construction_info: vec![(String::from("Select a colony"), 0)]
         }
     }
 }
@@ -39,30 +47,97 @@ impl Component for ColoniesMenu {
                 self.colonies = colonies;
                 self.list_state.select(Some(0));
             },
+            Action::LoadColonyInfo(new_info) => {
+                self.info = new_info;
+            }
+            Action::LoadColonyBuildings(data) => {
+                self.buildings_list = data;
+            }
             Action::StartSelecting => {
                 self.is_focused = true
             },
             Action::SelectPrevious => {
-                self.list_state.select(Some(
-                    widget_utils::select_prev_in_list(
-                        self.list_state.selected().unwrap(),
-                        self.colonies.len(),
-                    )
-                ))
+                if self.is_focused {
+                    self.list_state.select(Some(
+                        widget_utils::select_prev_in_list(
+                            self.list_state.selected().unwrap(),
+                            self.colonies.len(),
+                        )
+                    ))
+                } else if self.is_building_focused {
+                    self.buildings_list_state.select(Some(
+                        widget_utils::select_prev_in_list(
+                            self.buildings_list_state.selected().unwrap(),
+                            self.buildings_list.len(),
+                        )
+                    ))
+                }
             },
             Action::SelectNext => {
-                self.list_state.select(Some(
-                    widget_utils::select_next_in_list(
-                        self.list_state.selected().unwrap(),
-                        self.colonies.len(),
-                    )
-                ))
+                if self.is_focused {
+                    self.list_state.select(Some(
+                        widget_utils::select_next_in_list(
+                            self.list_state.selected().unwrap(),
+                            self.colonies.len(),
+                        )
+                    ))
+                } else if self.is_building_focused {
+                    self.buildings_list_state.select(Some(
+                        widget_utils::select_next_in_list(
+                            self.buildings_list_state.selected().unwrap(),
+                            self.buildings_list.len(),
+                        )
+                    ))
+                }
             },
             Action::Select => {
-                self.selected_colony = Some(
-                    self.colonies[self.list_state.selected().unwrap()].clone()
-                );
-                self.is_focused = false;
+                if self.is_focused {
+                    let selected_name = self.colonies[
+                        self.list_state.selected().unwrap()
+                        ].clone();
+                    self.selected_colony = Some(selected_name.clone());
+                    self.is_focused = false;
+                    return Ok(
+                        Some(Action::ScheduleLoadColonyInfo(selected_name))
+                    )
+                } else if self.is_building_focused {
+                    self.is_building_focused = false;
+
+                    let selected_building = self.buildings_list[
+                        self.buildings_list_state.selected().unwrap()
+                        ].clone().0;
+
+                    self.buildings_list_state.select(None);
+                    return Ok(
+                        Some(
+                            Action::StartConstruction(
+                                (
+                                    self.selected_colony.clone().unwrap(),
+                                    selected_building
+                                )
+                            )
+                        )
+                    )
+                }
+            },
+            Action::MainAction => {
+                return Ok(Some(
+                    Action::StartSelectingBuilding
+                ))
+            },
+            Action::StartSelectingBuilding => {
+                self.buildings_list_state.select(Some(0));
+                self.is_building_focused = true;
+            },
+            Action::IngameTick => {
+                if let Some(colony_name) = self.selected_colony.clone() {
+                    return Ok(
+                        Some(Action::ScheduleLoadConstructionInfo(colony_name))
+                    )
+                }
+            }
+            Action::LoadConstructionInfo(data) => {
+                self.construction_info = data;
             }
             _ => {}
         }
@@ -86,19 +161,18 @@ impl Component for ColoniesMenu {
         ).split(v_chunks[1]);
 
         let p_chunks = Layout::new(
-            Direction::Vertical,
+            Direction::Horizontal,
             vec![
-                Constraint::Min(0)
+                Constraint::Percentage(60),
+                Constraint::Percentage(40),
             ],
         ).split(h_chunks[1]);
 
 
-        let colonies_list = widgets::List::new(self.colonies.iter().map(
-            |c| { c.get_name() }
-        ))
+        let colonies_list = widgets::List::new(self.colonies.clone())
             .block(
                 Block::default()
-                    .title("Fields")
+                    .title("Colonies")
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
                     .border_style(
@@ -114,39 +188,95 @@ impl Component for ColoniesMenu {
             .repeat_highlight_symbol(false)
             .direction(ListDirection::TopToBottom);
 
-        let colony_info = if let Some(colony) = &self.selected_colony {
-            let mut lines = vec![
-                Line::from(format!("Colony: {}", colony.get_name())),
-                Line::from(format!("Population: {}", colony.get_population())),
-            ];
+        let lines: Vec<Line> = self.info.iter().map(|(text, color)| {
+            Line::from(
+                Span::styled(
+                    text,
+                    Style::default().fg(*color),
+                )
+            )
+        }).collect();
 
-            lines.append(&mut colony.get_buildings().iter().map(
-                |(name, amount)| {
-                    Line::from(vec![
-                        Span::from(format!("{}: ", name)),
-                        Span::styled(
-                            amount.to_string(),
-                            Style::default()
-                                .add_modifier(Modifier::ITALIC)
-                                .fg(if *amount == 0 {
-                                    Color::DarkGray
-                                } else {
-                                    Color::LightBlue
-                                }),
-                        ),
-                    ])
-                }
-            ).collect());
-            Paragraph::new(lines)
-        } else {
-            Paragraph::new("Select a colony")
-        }
+        let colony_info = Paragraph::new(lines)
             .block(
                 Block::default()
-                    .title("Colony")
+                    .title("Information")
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
             );
+
+        let b_chunks = Layout::new(
+            Direction::Vertical,
+            vec![
+                Constraint::Fill(1),
+                Constraint::Length(10),
+            ],
+        ).split(p_chunks[1]);
+
+
+        let entries: Vec<Line> = self.buildings_list.iter().map(
+            |(building, amount, color)| {
+                Line::styled(
+                    format!("{}: {}", building, amount),
+                    Style::default().fg(*color),
+                )
+            }
+        ).collect();
+
+        let buildings_list = widgets::List::new(entries)
+            .block(
+                Block::default()
+                    .title("Buildings")
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded)
+                    .border_style(
+                        if self.is_building_focused {
+                            Style::default().fg(Color::LightBlue)
+                        } else {
+                            Style::default()
+                        }
+                    )
+            )
+            .highlight_style(Style::default().add_modifier(Modifier::REVERSED))
+            .highlight_symbol(">> ")
+            .repeat_highlight_symbol(false)
+            .direction(ListDirection::TopToBottom);
+
+
+        f.render_stateful_widget(buildings_list, b_chunks[0], &mut self.buildings_list_state);
+
+
+        let entries: Vec<Line> = self.construction_info.iter().map(
+            |(name, progress)| {
+                Line::styled(
+                    format!(
+                        "{}: {}%",
+                        name,
+                        progress,
+                    ),
+                    Style::default().fg(
+                        match progress {
+                            0..=25 => Color::LightRed,
+                            26..=50 => Color::LightYellow,
+                            51..=75 => Color::LightGreen,
+                            76..=100 => Color::LightCyan,
+                            _ => Color::White
+                        }
+                    ),
+                )
+            }
+        ).collect();
+
+        let construction_list = widgets::List::new(entries)
+            .block(
+                Block::default()
+                    .title("Construction")
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded)
+            )
+            .direction(ListDirection::TopToBottom);
+
+        f.render_widget(construction_list, b_chunks[1]);
 
         f.render_stateful_widget(colonies_list, h_chunks[0], &mut self.list_state);
         f.render_widget(colony_info, p_chunks[0]);

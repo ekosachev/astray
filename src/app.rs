@@ -19,6 +19,9 @@ use crate::components::colonies_menu::ColoniesMenu;
 use crate::components::research_menu::ResearchMenu;
 use crate::components::system_menu::SystemMenu;
 use crate::components::top_menu::TopMenu;
+use crate::game::celestial_bodies::Displayable;
+use crate::game::colony::building::BuildingType;
+use crate::game::colony::colony::Colony;
 use crate::game::game_state::GameState;
 use crate::mode::Mode::{SelectingBodyInSystemTree, SelectingResearchField};
 use crate::tabs::Tabs;
@@ -86,7 +89,9 @@ impl App {
     action_tx.send(Action::LoadSystemView(self.state.get_starting_system()))?;
     action_tx.send(Action::LoadTabs(self.tabs.clone()))?;
     action_tx.send(Action::LoadResearchFields(self.state.get_research_fields()))?;
-    action_tx.send(Action::LoadColonies(self.state.get_colonies()))?;
+    action_tx.send(Action::LoadColonies(
+      self.state.get_colonies().iter().map(|c| c.get_name()).collect()
+    ))?;
 
     let mut tui = tui::Tui::new()?.tick_rate(self.tick_rate).frame_rate(self.frame_rate);
     // tui.mouse(true);
@@ -244,6 +249,47 @@ impl App {
           }
           Action::StartResearch(ref r) => {
             self.state.start_research(r.clone());
+          }
+          Action::StartSelectingBuilding => {
+            self.mode = Mode::SelectingBuilding;
+          }
+
+          Action::StartConstruction((ref name, ref b_type)) => {
+            let colony: Colony = self.state.get_colony_by_name(name.clone())
+                .unwrap();
+            let building_type = BuildingType::from(b_type.clone());
+            self.state.start_construction(colony.clone(), building_type);
+          }
+
+          Action::ScheduleLoadColonyInfo(ref name) => {
+            let colony = self.state.get_colony_by_name(name.clone()).unwrap();
+            action_tx.send(
+              Action::LoadColonyInfo(colony.get_info())
+            )?;
+            action_tx.send(
+              Action::LoadColonyBuildings(colony.get_buildings())
+            )?;
+          }
+
+          Action::ScheduleLoadConstructionInfo(ref name) => {
+            let colony = self.state.get_colony_by_name(name.clone()).unwrap();
+            action_tx.send(
+              Action::LoadConstructionInfo(
+                colony.get_construction()
+              )
+            )?;
+
+            action_tx.send(
+              Action::LoadColonyBuildings(
+                colony.get_buildings()
+              )
+            )?;
+
+            action_tx.send(
+              Action::LoadColonyInfo(
+                colony.get_info()
+              )
+            )?;
           }
           _ => {},
         }

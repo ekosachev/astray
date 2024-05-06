@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use ratatui::prelude::Color;
 use serde::{Deserialize, Serialize};
 
@@ -42,7 +44,7 @@ impl Into<String> for FactoryType {
 impl FactoryType {
     pub fn get_construction_time(&self) -> u32 {
         match self {
-            FactoryType::ElectronicsFactory => { 75 }
+            FactoryType::ElectronicsFactory => { 10 }
             FactoryType::KeroseneFactory => { 75 }
             FactoryType::HeatResistantAlloyFactory => { 75 }
             FactoryType::SuperconductorsFactory => { 75 }
@@ -68,7 +70,7 @@ pub enum BuildingType {
 impl Into<Color> for BuildingType {
     fn into(self) -> Color {
         match self {
-            BuildingType::Mine => Color::Gray,
+            BuildingType::Mine => Color::LightYellow,
             BuildingType::Factory(_) => Color::LightRed,
             BuildingType::Spaceport => Color::LightCyan,
             BuildingType::DryDock => Color::LightMagenta,
@@ -87,12 +89,42 @@ impl Into<String> for BuildingType {
     }
 }
 
-impl Displayable for BuildingType {
-    fn get_properties(&self) -> Vec<Vec<String>> {
-        Vec::new()
+impl BuildingType {
+    pub fn get_variants() -> Vec<(BuildingType, Color)> {
+        let variants = vec![
+            BuildingType::Mine,
+            BuildingType::Spaceport,
+            BuildingType::DryDock,
+            BuildingType::Factory(FactoryType::ElectronicsFactory),
+            BuildingType::Factory(FactoryType::KeroseneFactory),
+            BuildingType::Factory(FactoryType::HeatResistantAlloyFactory),
+            BuildingType::Factory(FactoryType::SuperconductorsFactory),
+            BuildingType::Factory(FactoryType::PlasticsFactory),
+            BuildingType::Factory(FactoryType::CompositesFactory),
+            BuildingType::Factory(FactoryType::RadioactivePelletsFactory),
+            BuildingType::Factory(FactoryType::EngineNozzlesFactory),
+            BuildingType::Factory(FactoryType::MicroprocessorsFactory),
+            BuildingType::Factory(FactoryType::SensorsFactory),
+            BuildingType::Factory(FactoryType::FuelRodsFactory),
+        ];
+
+        let result: Vec<(BuildingType, Color)> = variants.iter().map(
+            |bt| {
+                let col: Color = bt.clone().into();
+                (bt.clone(), col)
+            }
+        ).collect();
+
+        result
     }
+}
+
+impl Displayable for BuildingType {
     fn get_name(&self) -> String {
         self.clone().into()
+    }
+    fn get_properties(&self) -> Vec<Vec<String>> {
+        Vec::new()
     }
 
     fn get_menu_color(&self) -> Color {
@@ -103,7 +135,7 @@ impl Displayable for BuildingType {
 impl BuildingType {
     pub fn get_construction_time(&self) -> u32 {
         match self {
-            BuildingType::Mine => { 100 }
+            BuildingType::Mine => { 5 }
             BuildingType::Factory(ft) => { ft.get_construction_time() }
             BuildingType::Spaceport => { 150 }
             BuildingType::DryDock => { 130 }
@@ -117,6 +149,20 @@ impl BuildingType {
             BuildingType::Spaceport => { false }
             BuildingType::DryDock => { false }
         }
+    }
+}
+
+impl From<String> for BuildingType {
+    fn from(value: String) -> Self {
+        let pairs = Self::get_variants().iter().map(
+            |(t, _)| {
+                let s: String = t.clone().into();
+                (s, t.clone())
+            }
+        ).collect::<HashMap<String, BuildingType>>();
+
+
+        pairs.get(&value).unwrap().clone()
     }
 }
 

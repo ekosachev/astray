@@ -1,8 +1,10 @@
 use derive_getters::Getters;
 use rand::{prelude::*, Rng, thread_rng};
 use rand::distributions::WeightedIndex;
+use ratatui::prelude::Color;
 use serde::{Deserialize, Serialize};
 
+use crate::game::celestial_bodies::Displayable;
 use crate::game::colony::building::{BuildingType, FactoryType};
 
 pub enum ResourceGrade {
@@ -61,6 +63,30 @@ impl Into<ResourceGrade> for ResourceType {
             ResourceType::CSensors => ResourceGrade::Component,
             ResourceType::CFuelRods => ResourceGrade::Component,
         }
+    }
+}
+
+impl Into<String> for ResourceType {
+    fn into(self) -> String {
+        match self {
+            ResourceType::PRLightMetals => { "Light metals" }
+            ResourceType::PRHeavyMetals => { "Heavy metals" }
+            ResourceType::PRPreciousMetals => { "Precious metals" }
+            ResourceType::PRWater => { "Water" }
+            ResourceType::PRCrudeOil => { "Crude oil" }
+            ResourceType::PRSilicon => { "Silicon" }
+            ResourceType::SRKerosene => { "Kerosene" }
+            ResourceType::SRElectronics => { "Electronics" }
+            ResourceType::SRPlastic => { "Plastic" }
+            ResourceType::SRSuperconductors => { "Superconductors" }
+            ResourceType::SRHeatResistantAlloys => { "Heat resistant metals" }
+            ResourceType::SRComposites => { "Composites" }
+            ResourceType::SRRadioactivePellets => { "Radioactive Pellets" }
+            ResourceType::CEngineNozzles => { "Engine Nozzles" }
+            ResourceType::CMicroprocessors => { "Microprocessors" }
+            ResourceType::CSensors => { "Sensors" }
+            ResourceType::CFuelRods => { "Fuel Rods" }
+        }.into()
     }
 }
 
@@ -225,5 +251,21 @@ impl ResourceDeposit {
         ).unwrap();
 
         choices[dist.sample(&mut rng)].clone()
+    }
+}
+
+impl Displayable for ResourceType {
+    fn get_name(&self) -> String {
+        self.clone().into()
+    }
+
+    fn get_menu_color(&self) -> Color {
+        let grade: ResourceGrade = self.clone().into();
+        
+        match grade {
+            ResourceGrade::Primary => { Color::Gray }
+            ResourceGrade::Secondary => { Color::LightYellow }
+            ResourceGrade::Component => { Color::LightCyan }
+        }
     }
 }
