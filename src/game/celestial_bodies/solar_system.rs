@@ -3,13 +3,14 @@ use rand::distributions::Distribution;
 use rand_distr;
 use rand_distr::num_traits::ToPrimitive;
 use ratatui::style::Color;
-use ratatui::widgets::canvas::Context;
+use ratatui::widgets::canvas::{Circle, Context};
 use serde::{Deserialize, Serialize};
 
 use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType, Displayable, Orbitable};
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::star::Star;
 use crate::game::helpers::astrophysics;
+use crate::game::helpers::consts::AU_M;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SolarSystem {
@@ -111,6 +112,12 @@ impl Orbitable for SolarSystem {
     fn get_satellites(&self) -> Vec<Self::SatelliteType> {
         self.planets.clone()
     }
+
+    fn update_orbits(&mut self) {
+        for planet in self.planets.as_mut_slice() {
+            planet.update_orbit_position();
+        }
+    }
 }
 
 impl Displayable for SolarSystem {
@@ -127,66 +134,37 @@ impl SolarSystem {
     pub fn draw_image(
         &self,
         ctx: &mut Context,
-        x_w: f64,
-        y_w: f64,
-        width: f64,
-        height: f64,
     ) {
-        use ratatui::widgets::canvas::*;
-
-        let convert_from_system_to_image = |x: f64, y: f64| -> (f64, f64) {
-            let x_r = if x == 0.0 {
-                0.0
-            } else {
-                10.0 / x * x_w
-            };
-
-            let y_r = if y == 0.0 {
-                0.0
-            } else {
-                10.0 / y * x_w
-            };
-
-            (x_r, y_r)
-        };
-
         ctx.draw(
-            &Points {
-                color: Color::Red,
-                coords: [
-                    convert_from_system_to_image(-10.0, 10.0),
-                    convert_from_system_to_image(10.0, -10.0),
-                    convert_from_system_to_image(-10.0, -10.0),
-                    convert_from_system_to_image(10.0, 10.0),
-                    convert_from_system_to_image(0.0, 0.0),
-                ].as_slice(),
+            &Circle {
+                x: 0.0,
+                y: 0.0,
+                radius: (self.star.get_radius() / AU_M) as f64,
+                color: self.star.get_menu_color(),
             }
         );
 
-        let (x1, y1) = convert_from_system_to_image(-10.0, -10.0);
-        let (x2, y2) = convert_from_system_to_image(10.0, 10.0);
+        self.planets.iter().for_each(
+            |p| {
+                let radius_au = (p.get_orbit_radius() / AU_M) as f64;
 
-        ctx.draw(
-            &Line {
-                x1,
-                y1,
-                x2,
-                y2,
-                color: Color::Green,
+                ctx.draw(
+                    &Circle {
+                        x: 0.0,
+                        y: 0.0,
+                        radius: radius_au,
+                        color: Color::LightBlue,
+                    }
+                );
+                ctx.draw(
+                    &Circle {
+                        x: 0.0 + radius_au * p.get_orbit_position().cos() as f64,
+                        y: 0.0 + radius_au * p.get_orbit_position().sin() as f64,
+                        radius: (p.get_radius() / AU_M) as f64,
+                        color: p.get_menu_color(),
+                    }
+                )
             }
         );
-
-        let (x1, y1) = (10f64, 10f64);
-        let (x2, y2) = convert_from_system_to_image(10.0, 10.0);
-
-        ctx.draw(
-            &Line {
-                x1,
-                y1,
-                x2,
-                y2,
-                color: Color::LightBlue,
-            }
-        )
     }
 }

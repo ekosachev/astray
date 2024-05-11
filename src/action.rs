@@ -42,6 +42,7 @@ pub enum Action {
   LoadConstructionInfo(Vec<(String, u32)>),
 
   // Scheduling
+  ScheduleLoadSystemView,
   ScheduleLoadResearchesForField(String),
   ScheduleLoadResearchInfo(String),
   ScheduleLoadColonyInfo(String),
@@ -57,9 +58,17 @@ pub enum Action {
   SelectNext,
   SelectPrevious,
   Select,
+  Up,
+  Down,
+  Left,
+  Right,
+  ZoomIn,
+  ZoomOut,
 
   // Tab actions
   MainAction,
+  SecondaryAction,
+  EnterSystemMapNavigation,
   StartResearch(String),
   StartSelectingBuilding,
   StartConstruction((String /* Colony name */, String /* Building type name */))

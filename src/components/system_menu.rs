@@ -1,6 +1,8 @@
 use color_eyre::owo_colors::OwoColorize;
+use log::info;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
+use ratatui::symbols::Marker;
 use ratatui::text::Text;
 use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Row, Table};
 use ratatui::widgets::canvas::Canvas;
@@ -16,8 +18,12 @@ pub struct SystemMenu {
     state: ListState,
     system: Option<SolarSystem>,
     is_focused: bool,
+    map_focused: bool,
     list_length: usize,
     properties: Vec<Vec<String>>,
+    map_shift_x: f64,
+    map_shift_y: f64,
+    map_zoom: f64,
 }
 
 impl Default for SystemMenu {
@@ -30,7 +36,11 @@ impl Default for SystemMenu {
             state,
             system: None,
             is_focused: false,
+            map_focused: false,
             properties: vec![],
+            map_shift_x: 0.0,
+            map_shift_y: 0.0,
+            map_zoom: 1.0,
         }
     }
 }
@@ -46,12 +56,19 @@ impl SystemMenu {
 impl Component for SystemMenu {
     fn update(&mut self, action: Action) -> color_eyre::Result<Option<Action>> {
         match action {
+            Action::IngameTick => {
+                return Ok(Some(Action::ScheduleLoadSystemView))
+            }
             Action::StartSelecting => {
                 self.is_focused = true;
             }
+            Action::SecondaryAction => {
+                self.map_focused = true;
+                return Ok(Some(Action::EnterSystemMapNavigation))
+            }
             Action::LoadSystemView(system) => {
                 self.set_system(system);
-                return Ok(Some(Action::Select))
+
             }
             Action::SelectNext => {
                 let selected = self.state.selected().unwrap();
@@ -70,20 +87,42 @@ impl Component for SystemMenu {
                 }
             }
             Action::Select => {
-                self.is_focused = false;
+                if self.is_focused {
+                    self.is_focused = false;
 
-                let selected = self.state.selected().unwrap();
-                if selected == 0 {
-                    let star = self.system.clone().unwrap().get_star();
-                    self.properties = star.get_properties();
-                } else {
-                    let planets = self.system.clone().unwrap().get_satellites();
-                    self.properties = planets[selected - 1].get_properties();
+                    let selected = self.state.selected().unwrap();
+                    if selected == 0 {
+                        let star = self.system.clone().unwrap().get_star();
+                        self.properties = star.get_properties();
+                    } else {
+                        let planets = self.system.clone().unwrap().get_satellites();
+                        self.properties = planets[selected - 1].get_properties();
+                    }
+
+                    return Ok(Some(
+                        Action::UpdateObjectView
+                    ))
+                } else if self.map_focused {
+                    self.map_focused = false;
                 }
-                
-                return Ok(Some(
-                    Action::UpdateObjectView
-                ))
+            }
+            Action::Up => {
+                self.map_shift_y -= 2.0 * self.map_zoom
+            }
+            Action::Down => {
+                self.map_shift_y += 2.0 * self.map_zoom
+            }
+            Action::Left => {
+                self.map_shift_x += 2.0 * self.map_zoom
+            }
+            Action::Right => {
+                self.map_shift_x -= 2.0 * self.map_zoom
+            }
+            Action::ZoomIn => {
+                self.map_zoom -= 0.1
+            }
+            Action::ZoomOut => {
+                self.map_zoom += 0.1
             }
             _ => {}
         }
@@ -178,23 +217,37 @@ impl Component for SystemMenu {
                     .border_type(BorderType::Rounded)
             );
 
+        let height = [
+            (-15f64 + self.map_shift_x) * self.map_zoom,
+            (15f64 + self.map_shift_x) * self.map_zoom
+        ];
+        let aspect_ratio = (s_chunks[0].width as f64) / (s_chunks[0].height as f64) / 2.0;
+        let width = [
+            ((-15f64 + self.map_shift_y) / aspect_ratio) * self.map_zoom ,
+            ((15f64 + self.map_shift_y) / aspect_ratio) * self.map_zoom,
+        ];
+
+
         let system_image = Canvas::default()
             .block(
                 Block::default()
                     .title("System")
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded)
+                    .border_style(
+                        if self.map_focused {
+                            Style::default().fg(Color::LightBlue)
+                        } else {
+                            Style::default()
+                        }
+                    )
             )
-            .x_bounds([-10f64, 10f64])
-            .y_bounds([-10f64, 10f64])
+            .x_bounds(height)
+            .y_bounds(width)
             .paint(|ctx| {
                 if let Some(system) = self.system.clone() {
                     system.draw_image(
                         ctx,
-                        20f64,
-                        20f64,
-                        s_chunks[0].width as f64,
-                        s_chunks[0].height as f64,
                     )
                 }
             });

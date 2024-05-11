@@ -1,6 +1,6 @@
 use ratatui::style::Color;
 
-use crate::game::celestial_bodies::{CelestialBody, Displayable};
+use crate::game::celestial_bodies::{CelestialBody, Displayable, Orbitable};
 use crate::game::celestial_bodies::planet::Planet;
 use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::game::colony::building::BuildingType;
@@ -50,6 +50,7 @@ impl GameState {
     pub fn tick(&mut self) {
         self.update_research();
         self.update_colonies();
+        self.update_orbits();
     }
 
     pub fn new() -> Self {
@@ -98,6 +99,12 @@ impl GameState {
         if self.resource_tick_ratio == self.resource_tick_counter {
             self.resource_tick_counter = 0;
             self.colonies.iter_mut().for_each(|c| c.resource_tick());
+        }
+    }
+
+    fn update_orbits(&mut self) {
+        for system in self.systems.as_mut_slice() {
+            system.update_orbits();
         }
     }
 

@@ -107,6 +107,7 @@ impl App {
     }
 
     loop {
+      info!("{:?}", self.mode);
       if let Some(e) = tui.next().await {
         match e {
           tui::Event::Quit => action_tx.send(Action::Quit)?,
@@ -256,6 +257,9 @@ impl App {
               )
             ).expect("Can send events");
           }
+          Action::ScheduleLoadSystemView => {
+            action_tx.send(Action::LoadSystemView(self.state.get_starting_system()))?;
+          }
           Action::StartResearch(ref r) => {
             self.state.start_research(r.clone());
           }
@@ -299,6 +303,9 @@ impl App {
                 colony.get_info()
               )
             )?;
+          }
+          Action::EnterSystemMapNavigation => {
+            self.mode = Mode::SystemMapNavigation;
           }
           _ => {},
         }

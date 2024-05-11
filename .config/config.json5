@@ -8,7 +8,8 @@
       "<Alt-s>": "StartSelecting",
       "<Tab>": "NavigateNextTab",
       "<BackTab>": "NavigatePrevTab",
-      "<Alt-r>": "MainAction"
+      "<Alt-r>": "MainAction",
+      "<Alt-f>": "SecondaryAction"
     },
     "SelectingBodyInSystemTree": {
       "<Up>": "SelectPrevious",
@@ -34,6 +35,15 @@
       "<Up>": "SelectPrevious",
       "<Down>": "SelectNext",
       "<Enter>": "Select",
+    },
+    "SystemMapNavigation": {
+      "<Up>": "Up",
+      "<Down>": "Down",
+      "<Left>": "Left",
+      "<Right>": "Right",
+      "<]>": "ZoomOut",
+      "<[>": "ZoomIn",
+      "<Enter>": "Select"
     }
   }
 }

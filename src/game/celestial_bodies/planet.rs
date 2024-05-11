@@ -1,7 +1,10 @@
+use std::f32::consts::TAU;
 use std::ops::RangeInclusive;
+use log::info;
 
 use ordered_float::OrderedFloat;
 use rand::distributions::Distribution;
+use rand::Rng;
 use rand_distr::num_traits::ToPrimitive;
 use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
@@ -19,6 +22,7 @@ pub struct Planet {
     orbit_radius: OrderedFloat<f32>,
     orbit_period: OrderedFloat<f32>,
     habitable_zone: RangeInclusive<OrderedFloat<f32>>,
+    orbit_position: OrderedFloat<f32>,
 }
 
 impl CelestialBody for Planet {
@@ -37,7 +41,7 @@ impl CelestialBody for Planet {
     }
 
     fn generate(host: SolarSystem) -> Self {
-        let rng = rand::thread_rng();
+        let mut rng = rand::thread_rng();
         let n = host.get_n_planets() + 1;
         let letter: char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().nth(n - 1).unwrap();
 
@@ -90,7 +94,8 @@ impl CelestialBody for Planet {
             habitable_zone: RangeInclusive::new(
                 OrderedFloat(*habitable_zone.start()),
                 OrderedFloat(*habitable_zone.end()),
-            )
+            ),
+            orbit_position: rng.gen_range(0.0..std::f32::consts::TAU).into(),
         }
     }
 }
@@ -104,6 +109,19 @@ impl CanOrbit for Planet {
 
     fn get_orbit_period(&self) -> f32 {
         self.orbit_period.to_f32().unwrap()
+    }
+
+    fn get_orbit_position(&self) -> f32 {
+        self.orbit_position.into()
+    }
+
+    fn get_angular_speed(&self) -> f32 {
+        std::f32::consts::TAU / self.get_orbit_period()
+    }
+
+    fn update_orbit_position(&mut self) {
+        self.orbit_position += self.get_angular_speed() * 24.0 * 60.0 * 60.0;
+        self.orbit_position %= std::f32::consts::TAU;
     }
 }
 

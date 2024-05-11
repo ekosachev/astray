@@ -9,4 +9,5 @@ pub enum Mode {
   SelectingResearch,
   SelectingColony,
   SelectingBuilding,
+  SystemMapNavigation
 }

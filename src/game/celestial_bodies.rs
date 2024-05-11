@@ -85,6 +85,8 @@ pub trait Orbitable {
     /// * `Vec<Self::SatelliteType>` - A vector containing all the 
     /// satellites that orbit the object
     fn get_satellites(&self) -> Vec<Self::SatelliteType>;
+
+    fn update_orbits(&mut self);
 }
 
 pub trait CanOrbit {
@@ -92,6 +94,13 @@ pub trait CanOrbit {
     
     fn get_orbit_radius(&self) -> f32;
     fn get_orbit_period(&self) -> f32;
+
+    /// Returns the position in orbit in radians [0; 2pi], counting from the rightmost point
+    fn get_orbit_position(&self) -> f32;
+
+    fn get_angular_speed(&self) -> f32;
+
+    fn update_orbit_position(&mut self);
 }
 
 pub trait Displayable {
