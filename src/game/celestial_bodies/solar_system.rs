@@ -121,12 +121,12 @@ impl Orbitable for SolarSystem {
 }
 
 impl Displayable for SolarSystem {
-    fn get_properties(&self) -> Vec<Vec<String>> {
-        Vec::new()
-    }
-
     fn get_name(&self) -> String {
         self.star.get_name()
+    }
+
+    fn get_properties(&self) -> Vec<Vec<String>> {
+        Vec::new()
     }
 }
 

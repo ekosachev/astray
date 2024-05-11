@@ -1,8 +1,6 @@
 use color_eyre::owo_colors::OwoColorize;
-use log::info;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
-use ratatui::symbols::Marker;
 use ratatui::text::Text;
 use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Row, Table};
 use ratatui::widgets::canvas::Canvas;
@@ -119,10 +117,10 @@ impl Component for SystemMenu {
                 self.map_shift_x -= 2.0 * self.map_zoom
             }
             Action::ZoomIn => {
-                self.map_zoom -= 0.1
+                self.map_zoom *= 0.9
             }
             Action::ZoomOut => {
-                self.map_zoom += 0.1
+                self.map_zoom /= 0.9
             }
             _ => {}
         }
