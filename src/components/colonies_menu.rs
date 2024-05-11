@@ -11,6 +11,7 @@ use crate::tabs::Tabs;
 use crate::tui::Frame;
 
 pub struct ColoniesMenu {
+    is_initialised: bool,
     colonies: Vec<String>,
     list_state: ListState,
     selected_colony: Option<String>,
@@ -27,6 +28,7 @@ impl Default for ColoniesMenu {
         let mut state = ListState::default();
         state.select(Some(0));
         Self {
+            is_initialised: false,
             colonies: Vec::new(),
             list_state: state,
             is_focused: false,
@@ -42,6 +44,11 @@ impl Default for ColoniesMenu {
 
 impl Component for ColoniesMenu {
     fn update(&mut self, action: Action) -> color_eyre::Result<Option<Action>> {
+        if !self.is_initialised {
+            self.is_initialised = true;
+            return Ok(Some(Action::InitColonies))
+        }
+
         match action {
             Action::LoadColonies(colonies) => {
                 self.colonies = colonies;

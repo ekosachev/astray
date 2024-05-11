@@ -88,10 +88,7 @@ impl App {
     // Preload tasks
     action_tx.send(Action::LoadSystemView(self.state.get_starting_system()))?;
     action_tx.send(Action::LoadTabs(self.tabs.clone()))?;
-    action_tx.send(Action::LoadResearchFields(self.state.get_research_fields()))?;
-    action_tx.send(Action::LoadColonies(
-      self.state.get_colonies().iter().map(|c| c.get_name()).collect()
-    ))?;
+
 
     let mut tui = tui::Tui::new()?.tick_rate(self.tick_rate).frame_rate(self.frame_rate);
     // tui.mouse(true);
@@ -150,7 +147,6 @@ impl App {
         match action {
           Action::Tick => {
             self.last_tick_key_events.drain(..);
-            info!("{:?}", self.state.research_progress);
             if self.game_unpaused {
               if self.game_tick_counter == self.game_tickrate_ratio {
                 self.game_tick_counter = 0;
@@ -218,32 +214,45 @@ impl App {
           Action::Select => {
             self.mode = Mode::Main;
           }
+          Action::InitResearch => {
+            action_tx.send(Action::LoadResearchFields(self.state.get_research_fields()))?;
+          }
+          Action::InitColonies => {
+            action_tx.send(Action::LoadColonies(
+              self.state.get_colonies().iter().map(|c| c.get_name()).collect()
+            ))?;
+          }
           Action::ScheduleLoadResearchInfo(ref research) => {
             action_tx.send(
               Action::LoadResearchInfo(
                 self.state.get_research_info(research.clone())
               )
             ).expect("Can send events");
+
             action_tx.send(
               Action::LoadDependencyInfo(
                 self.state.get_research_dependency_info(research.clone())
               )
             ).expect("Can send events");
+
+            action_tx.send(
+              Action::LoadResearchProgressText(
+                self.state.get_research_progress_text(research.clone())
+              )
+            )?;
+
+            action_tx.send(
+              Action::LoadResearchProgress(
+                self.state.get_research_progress(research.clone())
+              )
+            )?;
+
+            action_tx.send(Action::LoadResearchFields(self.state.get_research_fields()))?;
           }
           Action::ScheduleLoadResearchesForField(ref field) => {
-            let researches = self.state.get_researches_by_field(field.clone());
-
             action_tx.send(
               Action::LoadResearchesForField(
-                researches.clone()
-              )
-            ).expect("Can send events");
-
-            action_tx.send(
-              Action::LoadResearchColors(
-                researches.iter().map(|r| {
-                  self.state.get_research_color(r.clone())
-                }).collect()
+                self.state.get_researches_by_field(field.clone())
               )
             ).expect("Can send events");
           }
@@ -293,7 +302,8 @@ impl App {
           }
           _ => {},
         }
-        for component in self.components.iter_mut() {
+        for component in self.components.iter_mut()
+            .filter(|c| c.is_drawn_in_tab(&self.tabs[self.cur_tab])) {
           if let Some(action) = component.update(action.clone())? {
             action_tx.send(action)?
           };

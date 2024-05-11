@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::layout::Constraint::{Fill, Length};
 use ratatui::prelude::{Color, Modifier, Style};
@@ -10,21 +8,22 @@ use ratatui::widgets::{Block, Borders, BorderType, ListDirection, ListState};
 use crate::action::Action;
 use crate::components::Component;
 use crate::components::utils::widget_utils;
-use crate::game::research::{Research, ResearchField};
 use crate::tabs::Tabs;
 use crate::tui::Frame;
 
 pub struct ResearchMenu {
+    is_initialised: bool,
     field_list_state: ListState,
     research_list_state: ListState,
-    field_list: Vec<ResearchField>,
-    research_list: Vec<Research>,
-    research_colors: Vec<Color>,
-    research_selected: Option<Research>,
+    field_list: Vec<(String, String, Color)>,
+    research_list: Vec<(String, String, Color)>,
+    research_selected: Option<String>,
     field_list_focused: bool,
     research_list_focused: bool,
-    info: HashMap<String, String>,
+    info: Vec<Vec<String>>,
     dependency_info: Option<Vec<Vec<(String, bool)>>>,
+    research_progress: u32,
+    gauge_text: String,
 }
 
 impl Default for ResearchMenu {
@@ -35,24 +34,31 @@ impl Default for ResearchMenu {
         research_list_state.select(Some(0));
 
         Self {
+            is_initialised: false,
             field_list_state,
             research_list_state,
             field_list: Vec::new(),
             research_list: Vec::new(),
-            research_colors: Vec::new(),
             research_selected: None,
             field_list_focused: false,
             research_list_focused: false,
-            info: HashMap::new(),
+            info: Vec::new(),
             dependency_info: None,
+            research_progress: 0,
+            gauge_text: String::from("")
         }
     }
 }
 
 impl Component for ResearchMenu {
     fn update(&mut self, action: Action) -> color_eyre::Result<Option<Action>> {
+        if !self.is_initialised {
+            self.is_initialised = true;
+            return Ok(Some(Action::InitResearch))
+        }
+
         match action {
-            Action::IngameTick => {
+            Action::Tick => {
                 if let Some(r) = self.research_selected.clone() {
                     return Ok(
                         Some(
@@ -116,7 +122,7 @@ impl Component for ResearchMenu {
                 self.research_list_state.select(Some(0));
                 return Ok(Some(
                     Action::ScheduleLoadResearchesForField(
-                        self.field_list[self.field_list_state.selected().unwrap()].clone()
+                        self.field_list[self.field_list_state.selected().unwrap()].clone().0
                     )
                 ))
             }
@@ -126,7 +132,7 @@ impl Component for ResearchMenu {
 
                 if !self.research_list.is_empty() {
                     self.research_selected = Some(
-                        self.research_list[self.research_list_state.selected().unwrap()].clone()
+                        self.research_list[self.research_list_state.selected().unwrap()].clone().0
                     );
 
                     return Ok(Some(
@@ -141,12 +147,16 @@ impl Component for ResearchMenu {
                 self.research_list = researches;
             }
 
-            Action::LoadResearchColors(colors) => {
-                self.research_colors = colors;
+            Action::LoadResearchProgress(progress) => {
+                self.research_progress = progress
             }
             
             Action::LoadResearchInfo(info) => {
                 self.info = info;
+            }
+
+            Action::LoadResearchProgressText(text) => {
+                self.gauge_text = text;
             }
 
             Action::MainAction => {
@@ -184,7 +194,12 @@ impl Component for ResearchMenu {
         ).split(v_chunks[1]);
 
         let fields_list = widgets::List::new(self.field_list.iter().map(
-            |r| { String::from(r.clone()) }
+            |(id, name, color)| {
+                Line::styled(
+                    name,
+                    Style::default().fg(*color),
+                )
+            }
         ))
             .block(
                 Block::default()
@@ -205,11 +220,11 @@ impl Component for ResearchMenu {
             .direction(ListDirection::TopToBottom);
 
         let research_list = widgets::List::new(
-            self.research_list.iter().zip(self.research_colors.clone()).map(
-                |(r, c)| {
+            self.research_list.iter().map(
+                |(i, r, c)| {
                     Line::styled(
-                        r.name().clone(),
-                        Style::default().fg(c),
+                        r,
+                        Style::default().fg(c.clone()),
                     )
                 }
             )
@@ -247,22 +262,11 @@ impl Component for ResearchMenu {
         ).split(chunks[2]);
 
 
-        let mut info_text = vec![
-            Line::from(
-                Span::styled(
-                    self.info.get(&"name".to_string())
-                        .unwrap_or(&default_text),
-                    Style::default().fg(Color::LightBlue).add_modifier(Modifier::BOLD),
-                )
-            ),
-            Line::from(
-                Span::styled(
-                    self.info.get(&"field".to_string())
-                        .unwrap_or(&default_text),
-                    Style::default().fg(Color::White).add_modifier(Modifier::ITALIC),
-                )
-            ),
-        ];
+        let mut info_text: Vec<Line> = self.info.iter().map(
+            |x| {
+                Line::from(x[0].clone())
+            }
+        ).collect();
 
         if let Some(d) = self.dependency_info.clone() {
             info_text.push(Line::from(""));
@@ -333,9 +337,7 @@ impl Component for ResearchMenu {
                     .border_type(BorderType::Rounded)
             )
             .gauge_style(
-                match self.info.get(
-                    &"progress".to_string()
-                ).unwrap_or(&"0".to_string()).parse::<u32>().unwrap() {
+                match self.research_progress {
                     0..=33 => { Color::Red },
                     34..=67 => { Color::Yellow },
                     68..=99 => { Color::Green },
@@ -344,12 +346,9 @@ impl Component for ResearchMenu {
                 }
             )
             .percent(
-                self.info.get(&"progress".to_string())
-                    .unwrap_or(&"0".to_string())
-                    .parse::<u16>()
-                    .unwrap_or(0)
+                self.research_progress as u16
             )
-            .label(self.info.get(&"progress_text".to_string()).unwrap_or(&default_text));
+            .label(self.gauge_text.clone());
 
 
         f.render_widget(info, info_chunks[0]);

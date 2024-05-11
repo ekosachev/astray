@@ -1,14 +1,19 @@
 [
   {
     "name": "Energy generation",
-    "id": "energy-generation"
+    "id": "energy-generation",
+    "researches": []
   },
   {
     "name": "Sublight propulsion",
-    "id": "sublight-propulsion"
+    "id": "sublight-propulsion",
+    "researches": []
+    
   },
   {
     "name": "Resource acquisition",
-    "id": "resource-acquisition"
+    "id": "resource-acquisition",
+    "researches": []
+    
   }
 ]

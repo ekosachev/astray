@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use ratatui::style::Color;
 use serde::{
   de::{Deserializer, Visitor},
@@ -8,7 +6,6 @@ use serde::{
 use strum::Display;
 
 use crate::game::celestial_bodies::solar_system::SolarSystem;
-use crate::game::research::{Research, ResearchField};
 use crate::tabs::Tabs;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Display, Deserialize)]
@@ -25,14 +22,19 @@ pub enum Action {
   Help,
   UpdateObjectView,
 
+  // Initialising
+  InitResearch,
+  InitColonies,
+
   // Loading data
   LoadTabs(Vec<Tabs>),
-  LoadResearchFields(Vec<ResearchField>),
-  LoadResearches(Vec<Research>),
-  LoadResearchesForField(Vec<Research>),
-  LoadResearchInfo(HashMap<String, String>),
+  LoadResearchFields(Vec<(String, String, Color)>),
+  LoadResearches(Vec<String>),
+  LoadResearchesForField(Vec<(String, String, Color)>),
+  LoadResearchInfo(Vec<Vec<String>>),
   LoadDependencyInfo(Vec<Vec<(String, bool)>>),
-  LoadResearchColors(Vec<Color>),
+  LoadResearchProgressText(String),
+  LoadResearchProgress(u32),
   LoadSystemView(SolarSystem),
   LoadColonies(Vec<String>),
   LoadColonyInfo(Vec<(String, Color)>),
@@ -40,8 +42,8 @@ pub enum Action {
   LoadConstructionInfo(Vec<(String, u32)>),
 
   // Scheduling
-  ScheduleLoadResearchesForField(ResearchField),
-  ScheduleLoadResearchInfo(Research),
+  ScheduleLoadResearchesForField(String),
+  ScheduleLoadResearchInfo(String),
   ScheduleLoadColonyInfo(String),
   ScheduleLoadConstructionInfo(String),
 
@@ -58,7 +60,7 @@ pub enum Action {
 
   // Tab actions
   MainAction,
-  StartResearch(Research),
+  StartResearch(String),
   StartSelectingBuilding,
   StartConstruction((String /* Colony name */, String /* Building type name */))
 }
