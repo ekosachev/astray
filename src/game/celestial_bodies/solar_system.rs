@@ -2,7 +2,8 @@ use ordered_float::OrderedFloat;
 use rand::distributions::Distribution;
 use rand_distr;
 use rand_distr::num_traits::ToPrimitive;
-use ratatui::style::Color;
+use ratatui::prelude::Span;
+use ratatui::style::{Color, Style};
 use ratatui::widgets::canvas::{Circle, Context};
 use serde::{Deserialize, Serialize};
 
@@ -134,6 +135,7 @@ impl SolarSystem {
     pub fn draw_image(
         &self,
         ctx: &mut Context,
+        scale: f64
     ) {
         ctx.draw(
             &Circle {
@@ -142,6 +144,15 @@ impl SolarSystem {
                 radius: (self.star.get_radius() / AU_M) as f64,
                 color: self.star.get_menu_color(),
             }
+        );
+
+        ctx.print(
+            0.2 * scale,
+            0.2 * scale,
+            Span::styled(
+                self.star.get_name(),
+                Style::default().fg(self.star.get_menu_color()),
+            ),
         );
 
         self.planets.iter().for_each(
@@ -156,14 +167,25 @@ impl SolarSystem {
                         color: Color::LightBlue,
                     }
                 );
+
+                let p_x = radius_au * p.get_orbit_position().cos() as f64;
+                let p_y = radius_au * p.get_orbit_position().sin() as f64;
                 ctx.draw(
                     &Circle {
-                        x: 0.0 + radius_au * p.get_orbit_position().cos() as f64,
-                        y: 0.0 + radius_au * p.get_orbit_position().sin() as f64,
+                        x: 0.0 + p_x,
+                        y: 0.0 + p_y,
                         radius: (p.get_radius() / AU_M) as f64,
                         color: p.get_menu_color(),
                     }
-                )
+                );
+                ctx.print(
+                    p_x + 0.2 * scale,
+                    p_y + 0.2 * scale,
+                    Span::styled(
+                        p.get_name(),
+                        Style::default().fg(p.get_menu_color()),
+                    ),
+                );
             }
         );
     }

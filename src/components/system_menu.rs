@@ -105,16 +105,16 @@ impl Component for SystemMenu {
                 }
             }
             Action::Up => {
-                self.map_shift_y -= 2.0 * self.map_zoom
-            }
-            Action::Down => {
                 self.map_shift_y += 2.0 * self.map_zoom
             }
+            Action::Down => {
+                self.map_shift_y -= 2.0 * self.map_zoom
+            }
             Action::Left => {
-                self.map_shift_x += 2.0 * self.map_zoom
+                self.map_shift_x -= 2.0 * self.map_zoom
             }
             Action::Right => {
-                self.map_shift_x -= 2.0 * self.map_zoom
+                self.map_shift_x += 2.0 * self.map_zoom
             }
             Action::ZoomIn => {
                 self.map_zoom *= 0.9
@@ -246,6 +246,7 @@ impl Component for SystemMenu {
                 if let Some(system) = self.system.clone() {
                     system.draw_image(
                         ctx,
+                        self.map_zoom,
                     )
                 }
             });
