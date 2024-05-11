@@ -2,6 +2,8 @@ use ordered_float::OrderedFloat;
 use rand::distributions::Distribution;
 use rand_distr;
 use rand_distr::num_traits::ToPrimitive;
+use ratatui::style::Color;
+use ratatui::widgets::canvas::Context;
 use serde::{Deserialize, Serialize};
 
 use crate::game::celestial_bodies::{CanOrbit, CelestialBody, CelestialBodyType, Displayable, Orbitable};
@@ -118,5 +120,73 @@ impl Displayable for SolarSystem {
 
     fn get_name(&self) -> String {
         self.star.get_name()
+    }
+}
+
+impl SolarSystem {
+    pub fn draw_image(
+        &self,
+        ctx: &mut Context,
+        x_w: f64,
+        y_w: f64,
+        width: f64,
+        height: f64,
+    ) {
+        use ratatui::widgets::canvas::*;
+
+        let convert_from_system_to_image = |x: f64, y: f64| -> (f64, f64) {
+            let x_r = if x == 0.0 {
+                0.0
+            } else {
+                10.0 / x * x_w
+            };
+
+            let y_r = if y == 0.0 {
+                0.0
+            } else {
+                10.0 / y * x_w
+            };
+
+            (x_r, y_r)
+        };
+
+        ctx.draw(
+            &Points {
+                color: Color::Red,
+                coords: [
+                    convert_from_system_to_image(-10.0, 10.0),
+                    convert_from_system_to_image(10.0, -10.0),
+                    convert_from_system_to_image(-10.0, -10.0),
+                    convert_from_system_to_image(10.0, 10.0),
+                    convert_from_system_to_image(0.0, 0.0),
+                ].as_slice(),
+            }
+        );
+
+        let (x1, y1) = convert_from_system_to_image(-10.0, -10.0);
+        let (x2, y2) = convert_from_system_to_image(10.0, 10.0);
+
+        ctx.draw(
+            &Line {
+                x1,
+                y1,
+                x2,
+                y2,
+                color: Color::Green,
+            }
+        );
+
+        let (x1, y1) = (10f64, 10f64);
+        let (x2, y2) = convert_from_system_to_image(10.0, 10.0);
+
+        ctx.draw(
+            &Line {
+                x1,
+                y1,
+                x2,
+                y2,
+                color: Color::LightBlue,
+            }
+        )
     }
 }

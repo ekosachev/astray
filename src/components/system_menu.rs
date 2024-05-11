@@ -3,10 +3,11 @@ use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::Text;
 use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Row, Table};
+use ratatui::widgets::canvas::Canvas;
 
 use crate::action::Action;
 use crate::components::Component;
-use crate::game::celestial_bodies::{CelestialBody, Displayable, Orbitable};
+use crate::game::celestial_bodies::{Displayable, Orbitable};
 use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::tabs::Tabs;
 use crate::tui::Frame;
@@ -111,6 +112,14 @@ impl Component for SystemMenu {
             ]
         ).split(v_chunks[1]);
 
+        let s_chunks = Layout::new(
+            Direction::Vertical,
+            vec![
+                Constraint::Fill(1),
+                Constraint::Max(10),
+            ],
+        ).split(chunks[1]);
+
         let mut items = Vec::<Text>::with_capacity(1 + self.system.clone().unwrap().get_n_planets());
         items.push(
             Text::styled(
@@ -169,8 +178,30 @@ impl Component for SystemMenu {
                     .border_type(BorderType::Rounded)
             );
 
+        let system_image = Canvas::default()
+            .block(
+                Block::default()
+                    .title("System")
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded)
+            )
+            .x_bounds([-10f64, 10f64])
+            .y_bounds([-10f64, 10f64])
+            .paint(|ctx| {
+                if let Some(system) = self.system.clone() {
+                    system.draw_image(
+                        ctx,
+                        20f64,
+                        20f64,
+                        s_chunks[0].width as f64,
+                        s_chunks[0].height as f64,
+                    )
+                }
+            });
+
         f.render_stateful_widget(list, chunks[0], &mut self.state);
-        f.render_widget(object_view, chunks[1]);
+        f.render_widget(object_view, s_chunks[1]);
+        f.render_widget(system_image, s_chunks[0]);
 
         Ok(())
     }
