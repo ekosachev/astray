@@ -224,7 +224,7 @@ impl Component for ResearchMenu {
                 |(i, r, c)| {
                     Line::styled(
                         r,
-                        Style::default().fg(c.clone()),
+                        Style::default().fg(*c),
                     )
                 }
             )
