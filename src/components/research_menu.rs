@@ -3,7 +3,7 @@ use ratatui::layout::Constraint::{Fill, Length};
 use ratatui::prelude::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets;
-use ratatui::widgets::{Block, Borders, BorderType, ListDirection, ListState};
+use ratatui::widgets::{Block, Borders, BorderType, ListDirection, ListState, Paragraph};
 
 use crate::action::Action;
 use crate::components::Component;
@@ -356,16 +356,19 @@ impl Component for ResearchMenu {
 
         let help_key_style = Style::default().fg(Color::LightBlue).add_modifier(Modifier::BOLD);
 
-        let help = widgets::Paragraph::new(
-            Line::from(
-                vec![
-                    Span::from("Press "),
-                    Span::styled("<Alt+R>", help_key_style),
-                    Span::from(" to start researching the selected tech"),
-                ]
-            )
+        let help = Paragraph::new(
+            match (self.research_list_focused, self.field_list_focused) {
+                (false, false) => "Press <Alt+S> to select a research, <Alt+R> to start \
+                researching selected tech",
+                (true, false) => "Use arrows to highlight a research, then press <Enter> to select \
+                it",
+                (false, true) => "Use arrows to highlight a research field and <Enter> to select \
+                it",
+                (true, true) => "This is a bug! Thanks for catching it!",
+            }
         ).block(
             Block::default()
+                .title("Controls help")
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
         );

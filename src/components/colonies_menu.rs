@@ -183,6 +183,7 @@ impl Component for ColoniesMenu {
             vec![
                 Constraint::Length(3),
                 Constraint::Min(0),
+                Constraint::Length(3)
             ],
         ).split(area);
 
@@ -310,10 +311,28 @@ impl Component for ColoniesMenu {
             )
             .direction(ListDirection::TopToBottom);
 
+        let help = Paragraph::new(
+            match (self.is_focused, self.is_building_focused) {
+                (false, false) => "Press <Alt+S> to select a colony or <Alt+R> to start \
+                construction",
+                (true, false) => "Use arrows to highlight a colony, then press <Enter> to select \
+                it",
+                (false, true) => "Use arrows to highlight a building, then press <Enter> to start \
+                 construction",
+                (true, true) => "This is a bug! Thanks for catching it!",
+            }
+        ).block(
+            Block::default()
+                .title("Controls help")
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
+        );
+
         f.render_widget(construction_list, b_chunks[1]);
 
         f.render_stateful_widget(colonies_list, h_chunks[0], &mut self.list_state);
         f.render_widget(colony_info, p_chunks[0]);
+        f.render_widget(help, v_chunks[2]);
 
         Ok(())
     }

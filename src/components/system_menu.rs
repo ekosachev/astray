@@ -2,7 +2,7 @@ use color_eyre::owo_colors::OwoColorize;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::Text;
-use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Row, Table};
+use ratatui::widgets::{Block, Borders, BorderType, List, ListDirection, ListState, Paragraph, Row, Table};
 use ratatui::widgets::canvas::Canvas;
 
 use crate::action::Action;
@@ -27,7 +27,7 @@ pub struct SystemMenu {
 impl Default for SystemMenu {
     fn default() -> Self {
         let mut state = ListState::default();
-        state.select(None);
+        state.select(Some(0));
 
         Self {
             list_length: 0,
@@ -46,7 +46,6 @@ impl Default for SystemMenu {
 impl SystemMenu {
     pub fn set_system(&mut self, system: SolarSystem) {
         self.list_length = 1 + system.get_n_planets();
-        self.state.select(Some(0));
         self.system = Some(system);
     }
 }
@@ -138,6 +137,7 @@ impl Component for SystemMenu {
             vec![
                 Constraint::Length(3),
                 Constraint::Min(0),
+                Constraint::Length(3)
             ],
         ).split(area);
 
@@ -251,9 +251,25 @@ impl Component for SystemMenu {
                 }
             });
 
+        let help = Paragraph::new(
+            match (self.is_focused, self.map_focused) {
+                (false, false) => "Press <Alt+S> to select body, <Alt+F> to enter map navigation",
+                (true, false) => "Use arrows to highlight a body, then press <Enter> to select it",
+                (false, true) => "Use arrows to move the view and <[> and <]> to control zoom. \
+                Press <Enter> to exit map navigation",
+                (true, true) => "This is a bug! Thanks for catching it!",
+            }
+        ).block(
+            Block::default()
+                .title("Controls help")
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
+        );
+
         f.render_stateful_widget(list, chunks[0], &mut self.state);
         f.render_widget(object_view, s_chunks[1]);
         f.render_widget(system_image, s_chunks[0]);
+        f.render_widget(help, v_chunks[2]);
 
         Ok(())
     }
