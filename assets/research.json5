@@ -1,32 +1,7 @@
 [
   {
-    "name": "Primitive stellarators",
-    "id": "fusion-energy-1",
-    "cost": 3,
-    "progress": 0,
-    "speed": 1,
-    "is_going": false,
-    "field": "energy-generation",
-    "required_any": [],
-    "required_all": [],
-    "description": ""
-  },
-  {
-    "name": "Advanced plasma control",
-    "id": "fusion-energy-2",
-    "cost": 5,
-    "progress": 0,
-    "speed": 1,
-    "is_going": false,
-    "field": "energy-generation",
-    "required_any": [],
-    "required_all": [ "fusion-energy-1" ],
-    "description": ""
-    
-  },
-  {
-    "name": "Ion thrusters",
-    "id": "sublight-propulsion-1",
+    "name": "Ion Drive",
+    "id": "ion-drive",
     "cost": 100,
     "progress": 0,
     "speed": 1,
@@ -35,12 +10,137 @@
     "required_any": [],
     "required_all": [],
     "description": ""
-    
   },
   {
-    "name": "Automated mines",
-    "id": "resource-acquisition-1",
-    "cost": 75,
+    "name": "Superconducting Coils",
+    "id": "superconducting-coils",
+    "cost": 60,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "sublight-propulsion",
+    "required_any": [],
+    "required_all": [ "ion-drive" ],
+    "description": ""
+  },
+  {
+    "name": "Quicksilver fuel",
+    "id": "quicksilver-fuel",
+    "cost": 60,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "sublight-propulsion",
+    "required_any": [],
+    "required_all": [ "ion-drive" ],
+    "description": ""
+  },
+  {
+    "name": "Nano-scale Cathodes",
+    "id": "nano-scale-cathodes",
+    "cost": 80,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "sublight-propulsion",
+    "required_any": [],
+    "required_all": [ "ion-drive" ],
+    "description": ""
+  },
+  {
+    "name": "Plasma Engines",
+    "id": "plasma-engines",
+    "cost": 150,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "sublight-propulsion",
+    "required_any": [
+      "superconducting-coils",
+      "quicksilver-fuel",
+      "nano-scale-cathodes"
+    ],
+    "required_all": [ "ion-drive" ],
+    "description": ""
+  },
+  {
+    "name": "Advanced Field Topology",
+    "id": "advanced-field-topology",
+    "cost": 120,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "sublight-propulsion",
+    "required_any": [],
+    "required_all": [ "plasma-engines" ],
+    "description": ""
+  },
+  {
+    "name": "Electrode-less thrusters",
+    "id": "electrode-less-thrusters",
+    "cost": 120,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "sublight-propulsion",
+    "required_any": [],
+    "required_all": [ "plasma-engines" ],
+    "description": ""
+  },
+  {
+    "name": "ULF EM Emitters",
+    "id": "ulf-em-emitters",
+    "cost": 130,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "sublight-propulsion",
+    "required_any": [],
+    "required_all": [ "plasma-engines" ],
+    "description": "Ultra-low frequency electromagnetic wave emitters"
+  },
+
+  {
+    "name": "Pulsar-based navigation network",
+    "id": "pulsar-based-navigation-network",
+    "cost": 200,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "interstellar-navigation",
+    "required_any": [],
+    "required_all": [],
+    "description": ""
+  },
+  {
+    "name": "Planck-precise clock",
+    "id": "planck-precise-clock",
+    "cost": 220,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "interstellar-navigation",
+    "required_any": [],
+    "required_all": [ "pulsar-based-navigation-network" ],
+    "description": ""
+  },
+  {
+    "name": "Advanced sensors",
+    "id": "advanced-sensors",
+    "cost": 210,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "interstellar-navigation",
+    "required_any": [],
+    "required_all": [ "pulsar-based-navigation-network" ],
+    "description": ""
+  },
+
+  {
+    "name": "Automated Mines",
+    "id": "automated-mines",
+    "cost": 70,
     "progress": 0,
     "speed": 1,
     "is_going": false,
@@ -48,6 +148,147 @@
     "required_any": [],
     "required_all": [],
     "description": ""
-    
+  },
+  {
+    "name": "Precision Probing",
+    "id": "precision-probing",
+    "cost": 100,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "resource-acquisition",
+    "required_any": [],
+    "required_all": [ "automated-mines" ],
+    "description": ""
+  },
+  {
+    "name": "Hardened Drills",
+    "id": "hardened-drills",
+    "cost": 110,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "resource-acquisition",
+    "required_any": [],
+    "required_all": [ "automated-mines" ],
+    "description": ""
+  },
+  {
+    "name": "Logistical Centers",
+    "id": "logistical-centers",
+    "cost": 90,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "resource-acquisition",
+    "required_any": [],
+    "required_all": [],
+    "description": ""
+  },
+  {
+    "name": "Delivery Hyperloops",
+    "id": "delivery-hyperloops",
+    "cost": 100,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "resource-acquisition",
+    "required_any": [],
+    "required_all": [ "logistical-centers" ],
+    "description": ""
+  },
+  {
+    "name": "Efficient Production Lines",
+    "id": "efficient-production-lines",
+    "cost": 100,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "resource-acquisition",
+    "required_any": [],
+    "required_all": [],
+    "description": ""
+  },
+  {
+    "name": "Universal Delivery Networks",
+    "id": "universal-delivery-networks",
+    "cost": 140,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "resource-acquisition",
+    "required_any": [],
+    "required_all": [
+      "delivery-hyperloops",
+      "efficient-production-lines"
+    ],
+    "description": ""
+  },
+
+  {
+    "name": "Primitive Stellarators",
+    "id": "primitive-stellarators",
+    "cost": 120,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "energy-generation",
+    "required_any": [],
+    "required_all": [],
+    "description": ""
+  },
+  {
+    "name": "Ultra-high Vacuum",
+    "id": "ultra-high-vacuum",
+    "cost": 110,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "energy-generation",
+    "required_any": [],
+    "required_all": [ "primitive-stellarators" ],
+    "description": ""
+  },
+  {
+    "name": "High-endurance Magnetic Coils",
+    "id": "high-endurance-magnetic-coils",
+    "cost": 130,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "energy-generation",
+    "required_any": [],
+    "required_all": [ "primitive-stellarators" ],
+    "description": ""
+  },
+  {
+    "name": "Super-energetic Plasma",
+    "id": "super-energetic-plasma",
+    "cost": 150,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "energy-generation",
+    "required_any": [
+      "ultra-high-vacuum",
+      "high-endurance-magnetic-coils"
+    ],
+    "required_all": [],
+    "description": ""
+  },
+  {
+    "name": "Heliotron",
+    "id": "heliotron",
+    "cost": 180,
+    "progress": 0,
+    "speed": 1,
+    "is_going": false,
+    "field": "energy-generation",
+    "required_any": [],
+    "required_all": [
+      "primitive-stellarators",
+      "super-energetic-plasma"
+    ],
+    "description": ""
   }
 ]

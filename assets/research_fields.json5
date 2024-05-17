@@ -8,12 +8,30 @@
     "name": "Sublight propulsion",
     "id": "sublight-propulsion",
     "researches": []
-    
   },
   {
     "name": "Resource acquisition",
     "id": "resource-acquisition",
     "researches": []
-    
+  },
+  {
+    "name": "FTL Propulsion",
+    "id": "ftl-propulsion",
+    "researches": []
+  },
+  {
+    "name": "Interstellar navigation",
+    "id": "interstellar-navigation",
+    "researches": []
+  },
+  {
+    "name": "Shipbuilding",
+    "id": "shipbuilding",
+    "researches": []
+  },
+  {
+    "name": "Space Warfare",
+    "id": "space-warfare",
+    "researches": []
   }
 ]
