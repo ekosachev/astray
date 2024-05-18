@@ -5,27 +5,39 @@ use crate::action::Action;
 use crate::components::Component;
 use crate::tui::Frame;
 
-#[derive(Default)]
 pub struct TopMenu {
     tabs: Vec<String>,
     selected: usize,
+}
+
+impl Default for TopMenu {
+    fn default() -> Self {
+        Self {
+            tabs: vec![],
+            selected: 1,
+        }
+    }
 }
 
 impl Component for TopMenu {
     fn update(&mut self, action: Action) -> color_eyre::Result<Option<Action>> {
         match action {
             Action::LoadTabs(tabs) => {
-                self.tabs = tabs.iter().map(|t| String::from(t.clone())).collect();
+                self.tabs = tabs.iter().map(|t| String::from(t.clone()))
+                    .collect();
+                self.tabs.insert(0, String::from("<Shift+Tab>"));
+                self.tabs.push(String::from("<Tab>"));
             }
             Action::NavigateNextTab => {
                 self.selected += 1;
-                self.selected %= self.tabs.len();
+                self.selected %= self.tabs.len() - 1;
+                if self.selected == 0 { self.selected += 1 }
             }
             Action::NavigatePrevTab => {
-                if self.selected != 0 {
+                if self.selected != 1 {
                     self.selected -= 1;
                 } else {
-                    self.selected = self.tabs.len() - 1;
+                    self.selected = self.tabs.len() - 2;
                 }
             }
             _ => {}
@@ -51,7 +63,7 @@ impl Component for TopMenu {
             )
             .select(self.selected)
             .divider("|")
-            .padding("-> ", " <-");
+            .padding(" == ", " == ");
 
         f.render_widget(tabs, chunks[0]);
 
