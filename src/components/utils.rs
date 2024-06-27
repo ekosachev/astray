@@ -1,5 +1,6 @@
 pub mod widget_utils {
     pub fn select_next_in_list(current_item: usize, list_length: usize) -> usize {
+        if list_length == 0 { return 0 }
         if current_item != list_length - 1 {
             current_item + 1
         } else {
@@ -8,6 +9,7 @@ pub mod widget_utils {
     }
     
     pub fn select_prev_in_list(current_item: usize, list_length: usize) -> usize {
+        if list_length == 0 { return 0 }
         if current_item != 0 {
             current_item - 1
         } else {
