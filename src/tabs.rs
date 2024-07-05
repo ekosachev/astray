@@ -5,6 +5,7 @@ pub enum Tabs {
     SystemView,
     Research,
     Colonies,
+    ShipModules
 }
 
 impl From<Tabs> for String {
@@ -13,6 +14,7 @@ impl From<Tabs> for String {
             Tabs::SystemView => String::from("System View"),
             Tabs::Research => String::from("Research"),
             Tabs::Colonies => String::from("Colonies"),
+            Tabs::ShipModules => String::from("Ship modules"),
         }
     }
 }

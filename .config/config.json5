@@ -44,6 +44,16 @@
       "<]>": "ZoomOut",
       "<[>": "ZoomIn",
       "<Enter>": "Select"
+    },
+    "SelectingShipModuleType": {
+      "<Up>": "SelectPrevious",
+      "<Down>": "SelectNext",
+      "<Enter>": "ContinueSelecting"
+    },
+    "SelectingShipModule": {
+      "<Up>": "SelectPrevious",
+      "<Down>": "SelectNext",
+      "<Enter>": "Select"
     }
   }
 }

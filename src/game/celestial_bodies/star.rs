@@ -8,7 +8,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::game::celestial_bodies::{CelestialBody, CelestialBodyType, constants, Displayable};
 use crate::game::helpers::{astrophysics, consts};
-use crate::game::helpers::astrophysics::{calculate_inner_radius_of_habitable_zone_from_luminosity, calculate_luminosity_from_mass, calculate_outer_radius_of_habitable_zone_from_luminosity};
+use crate::game::helpers::astrophysics::{
+    calculate_inner_radius_of_habitable_zone_from_luminosity,
+    calculate_luminosity_from_mass,
+    calculate_outer_radius_of_habitable_zone_from_luminosity,
+};
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum StarClass {

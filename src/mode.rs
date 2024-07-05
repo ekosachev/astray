@@ -9,5 +9,7 @@ pub enum Mode {
   SelectingResearch,
   SelectingColony,
   SelectingBuilding,
-  SystemMapNavigation
+  SystemMapNavigation,
+  SelectingShipModuleType,
+  SelectingShipModule,
 }

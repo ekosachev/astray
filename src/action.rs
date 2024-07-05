@@ -40,6 +40,8 @@ pub enum Action {
   LoadColonyInfo(Vec<(String, Color)>),
   LoadColonyBuildings(Vec<(String, u32, Color)>),
   LoadConstructionInfo(Vec<(String, u32)>),
+  LoadShipModuleTypes(Vec<(String, Color)>),
+  LoadShipModulesForType(Vec<(String, Color)>),
 
   // Scheduling
   ScheduleLoadSystemView,
@@ -47,6 +49,8 @@ pub enum Action {
   ScheduleLoadResearchInfo(String),
   ScheduleLoadColonyInfo(String),
   ScheduleLoadConstructionInfo(String),
+  ScheduleLoadShipModuleTypes,
+  ScheduleLoadShipModulesForType(String),
 
   // Navigation
   NavigateNextTab,

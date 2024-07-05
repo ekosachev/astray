@@ -5,6 +5,7 @@ use color_eyre::eyre::Result;
 use crossterm::event::KeyEvent;
 use log::info;
 use ratatui::prelude::Rect;
+use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 
@@ -17,6 +18,7 @@ use crate::{
 };
 use crate::components::colonies_menu::ColoniesMenu;
 use crate::components::research_menu::ResearchMenu;
+use crate::components::ship_module_designer::ShipModuleDesigner;
 use crate::components::system_menu::SystemMenu;
 use crate::components::top_menu::TopMenu;
 use crate::game::celestial_bodies::Displayable;
@@ -50,6 +52,7 @@ impl App {
     let research_menu = ResearchMenu::default();
     let top_menu = TopMenu::default();
     let colonies_menu = ColoniesMenu::default();
+    let ship_modules = ShipModuleDesigner::default();
 
     let config = Config::new()?;
     let mode = Mode::Main;
@@ -61,6 +64,7 @@ impl App {
         Box::new(system_tree),
         Box::new(research_menu),
         Box::new(colonies_menu),
+        Box::new(ship_modules),
         Box::new(fps),
       ],
       should_quit: false,
@@ -73,6 +77,7 @@ impl App {
         Tabs::SystemView,
         Tabs::Research,
         Tabs::Colonies,
+        Tabs::ShipModules,
       ],
       cur_tab: 0,
       game_unpaused: true,
@@ -204,11 +209,13 @@ impl App {
               Tabs::SystemView => { SelectingBodyInSystemTree }
               Tabs::Research => { SelectingResearchField }
               Tabs::Colonies => { Mode::SelectingColony }
+              Tabs::ShipModules => { Mode::SelectingShipModuleType }
             }
           }
           Action::ContinueSelecting => {
             self.mode = match self.mode {
               SelectingResearchField => { Mode::SelectingResearch }
+              Mode::SelectingShipModuleType => { Mode::SelectingShipModule }
               _ => { Mode::Main }
             }
           }
@@ -306,6 +313,27 @@ impl App {
           }
           Action::EnterSystemMapNavigation => {
             self.mode = Mode::SystemMapNavigation;
+          },
+          Action::ScheduleLoadShipModuleTypes => {
+            action_tx.send(
+              Action::LoadShipModuleTypes(
+                self.state.get_ship_module_types().iter().map(
+                  |t| {
+                    (t.get_name(), t.get_menu_color())
+                  }
+                ).collect()
+              )
+            )?;
+          },
+          Action::ScheduleLoadShipModulesForType(ref module_type_name) => {
+            let module_type = self.state.get_ship_module_type_by_name(module_type_name);
+            let modules: Vec<T> = self.state.get_ship_modules_by_type(module_type);
+            let data: Vec<(String, Color)> = modules.iter().map(
+              |m| {
+                (m.get_name(), m.get_menu_color())
+              }
+            );
+            action_tx.send(Action::LoadShipModulesForType(data))?;
           }
           _ => {},
         }

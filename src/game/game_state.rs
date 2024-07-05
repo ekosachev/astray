@@ -6,6 +6,8 @@ use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::game::colony::building::BuildingType;
 use crate::game::colony::colony::Colony;
 use crate::game::research::research_manager::ResearchManager;
+use crate::game::shipbuilding::ship_module::{ShipModule, ShipModuleType};
+use crate::game::shipbuilding::ship_module_manager::ShipModuleManager;
 
 pub struct GameState {
     systems: Vec<SolarSystem>,
@@ -15,6 +17,7 @@ pub struct GameState {
     resource_tick_ratio: u32,
     resource_tick_counter: u32,
     research_manager: ResearchManager,
+    ship_module_manager: ShipModuleManager,
 }
 
 impl Default for GameState {
@@ -42,6 +45,8 @@ impl Default for GameState {
             resource_tick_counter: 0,
             resource_tick_ratio: 2,
             research_manager: ResearchManager::new(),
+
+            ship_module_manager: ShipModuleManager::new(),
         }
     }
 }
@@ -119,5 +124,17 @@ impl GameState {
 
     pub fn get_colony_by_name(&self, name: String) -> Option<Colony> {
         self.colonies.iter().find(|c| c.get_name() == name).cloned()
+    }
+
+    pub fn get_ship_module_types(&self) -> Vec<ShipModuleType> {
+        self.ship_module_manager.get_ship_module_types()
+    }
+
+    pub fn get_ship_module_type_by_name(&self, name: String) -> ShipModuleType {
+        self.ship_module_manager.get_ship_module_type_by_name(name)
+    }
+
+    pub fn get_ship_modules_by_type<T: ShipModule>(&self, module_type: ShipModuleType) -> Vec<T> {
+        self.ship_module_manager.get_ship_modules_by_type(module_type)
     }
 }

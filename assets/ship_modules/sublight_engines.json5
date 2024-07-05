@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Ion drive",
+    "traits": [
+      { "name": "Potential difference" },
+      { "name": "Nozzle throughput" },
+      { "name": "Ionization power" }
+    ],
+    "is_unlocked": false
+  }
+]

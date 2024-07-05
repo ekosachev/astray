@@ -4,3 +4,4 @@ pub mod research;
 pub mod game_state;
 pub mod colony;
 mod resource;
+mod shipbuilding;
