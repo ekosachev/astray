@@ -50,8 +50,8 @@ impl Component for ShipModuleDesigner {
                 }
             }
             Action::ContinueSelecting => {
-                self.state = WidgetState::SelectingModule
-                return Ok(Some(Action::))
+                self.state = WidgetState::SelectingModule;
+                return Ok(None)
             }
             Action::SelectNext => {
                 match self.state {

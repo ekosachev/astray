@@ -26,11 +26,11 @@ impl ShipModuleManager {
         ShipModuleType::from(name)
     }
 
-    pub fn get_ship_modules_by_type<T: ShipModule>(&self, module_type: ShipModuleType) -> Vec<T> {
-        let modules = match module_type {
-            ShipModuleType::SublightThruster => { self.sublight_engines.clone() }
-        };
-        
-        modules
-    }
+    // pub fn get_ship_modules_by_type<T: ShipModule>(&self, module_type: ShipModuleType) -> Vec<T> {
+    //     let modules = match module_type {
+    //         ShipModuleType::SublightThruster => { self.sublight_engines.clone() }
+    //     };
+    // 
+    //     modules
+    // }
 }

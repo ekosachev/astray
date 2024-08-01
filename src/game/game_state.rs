@@ -6,7 +6,7 @@ use crate::game::celestial_bodies::solar_system::SolarSystem;
 use crate::game::colony::building::BuildingType;
 use crate::game::colony::colony::Colony;
 use crate::game::research::research_manager::ResearchManager;
-use crate::game::shipbuilding::ship_module::{ShipModule, ShipModuleType};
+use crate::game::shipbuilding::ship_module::ShipModuleType;
 use crate::game::shipbuilding::ship_module_manager::ShipModuleManager;
 
 pub struct GameState {
@@ -130,11 +130,11 @@ impl GameState {
         self.ship_module_manager.get_ship_module_types()
     }
 
-    pub fn get_ship_module_type_by_name(&self, name: String) -> ShipModuleType {
-        self.ship_module_manager.get_ship_module_type_by_name(name)
-    }
-
-    pub fn get_ship_modules_by_type<T: ShipModule>(&self, module_type: ShipModuleType) -> Vec<T> {
-        self.ship_module_manager.get_ship_modules_by_type(module_type)
-    }
+    // pub fn get_ship_module_type_by_name(&self, name: String) -> ShipModuleType {
+    //     self.ship_module_manager.get_ship_module_type_by_name(name)
+    // }
+    //
+    // pub fn get_ship_modules_by_type<T: ShipModule>(&self, module_type: ShipModuleType) -> Vec<T> {
+    //     self.ship_module_manager.get_ship_modules_by_type(module_type)
+    // }
 }

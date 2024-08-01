@@ -25,6 +25,7 @@ use crate::game::celestial_bodies::Displayable;
 use crate::game::colony::building::BuildingType;
 use crate::game::colony::colony::Colony;
 use crate::game::game_state::GameState;
+use crate::game::shipbuilding::ship_module::ShipModule;
 use crate::mode::Mode::{SelectingBodyInSystemTree, SelectingResearchField};
 use crate::tabs::Tabs;
 
@@ -325,16 +326,6 @@ impl App {
               )
             )?;
           },
-          Action::ScheduleLoadShipModulesForType(ref module_type_name) => {
-            let module_type = self.state.get_ship_module_type_by_name(module_type_name);
-            let modules: Vec<T> = self.state.get_ship_modules_by_type(module_type);
-            let data: Vec<(String, Color)> = modules.iter().map(
-              |m| {
-                (m.get_name(), m.get_menu_color())
-              }
-            );
-            action_tx.send(Action::LoadShipModulesForType(data))?;
-          }
           _ => {},
         }
         for component in self.components.iter_mut()
