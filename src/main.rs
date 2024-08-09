@@ -8,6 +8,8 @@ use bevy_ratatui::RatatuiPlugins;
 
 use crate::systems::keyboard_input_system::keyboard_input_system;
 use crate::systems::ui_system::ui_system;
+use crate::systems::tab_system::tab_system;
+use crate::ui::tab_menu::TabMenu;
 
 mod systems;
 mod ui;
@@ -40,9 +42,20 @@ fn main() {
     );
     app.add_plugins(StatesPlugin);
     // --- RESOURCES ---
+    let tab_menu = TabMenu {
+        tab_titles: vec![
+            "System".to_string(),
+            "Science".to_string(),
+            "Colonies".to_string(),
+            "Ship Components".to_string()
+        ],
+        selected_tab: 0,
+    };
+    app.insert_resource(tab_menu);
     // --- SYSTEMS ---
     app.add_systems(Update, ui_system.pipe(exit_on_error));
     app.add_systems(PreUpdate, keyboard_input_system);
+    app.add_systems(Update, tab_system);
     // --- MISC ---
     app.init_state::<Tab>();
     app.add_event::<InputEvent>();
