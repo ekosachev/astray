@@ -1,46 +1,50 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
+use std::time::Duration;
 
-use clap::Parser;
-use color_eyre::eyre::Result;
+use bevy::app::ScheduleRunnerPlugin;
+use bevy::prelude::*;
+use bevy::state::app::StatesPlugin;
+use bevy_ratatui::error::exit_on_error;
+use bevy_ratatui::RatatuiPlugins;
 
-use cli::Cli;
+use crate::systems::keyboard_input_system::keyboard_input_system;
+use crate::systems::ui_system::ui_system;
 
-use crate::{
-  app::App,
-  utils::{initialize_logging, initialize_panic_handler},
-};
+mod systems;
+mod ui;
 
-pub mod action;
-pub mod app;
-pub mod cli;
-pub mod components;
-pub mod config;
-pub mod mode;
-pub mod tui;
-pub mod utils;
-mod game;
+const FRAMERATE: f32 = 1. / 60.;
 
-pub mod tabs;
-async fn tokio_main() -> Result<()> {
-  initialize_logging()?;
-
-  initialize_panic_handler()?;
-
-  let args = Cli::parse();
-  let mut app = App::new(args.tick_rate, args.frame_rate)?;
-  app.run().await?;
-
-  Ok(())
+#[derive(Default, Copy, Clone, PartialEq, Eq, Hash, Debug, States)]
+enum Tab {
+    #[default]
+    System,
+    Science,
+    Colonies,
+    ShipComponents,
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
-  if let Err(e) = tokio_main().await {
-    eprintln!("{} error: Something went wrong", env!("CARGO_PKG_NAME"));
-    Err(e)
-  } else {
-    Ok(())
-  }
+#[derive(Event)]
+pub enum InputEvent {
+    NextTab,
+    PrevTab,
+}
+
+fn main() {
+    let mut app = App::new();
+    // --- PLUGINS ---
+    app.add_plugins(RatatuiPlugins::default());
+    app.add_plugins(
+        MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f32(
+            FRAMERATE,
+        ))),
+    );
+    app.add_plugins(StatesPlugin);
+    // --- RESOURCES ---
+    // --- SYSTEMS ---
+    app.add_systems(Update, ui_system.pipe(exit_on_error));
+    app.add_systems(PreUpdate, keyboard_input_system);
+    // --- MISC ---
+    app.init_state::<Tab>();
+    app.add_event::<InputEvent>();
+    app.run();
 }
