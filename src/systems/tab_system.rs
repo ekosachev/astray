@@ -1,11 +1,12 @@
 use bevy::prelude::{EventReader, NextState, Res, ResMut, State};
+
 use crate::{InputEvent, Tab};
 use crate::ui::tab_menu::TabMenu;
 
 pub fn tab_system(
     mut tab_menu: ResMut<TabMenu>,
     mut events: EventReader<InputEvent>,
-    mut cur_tab: Res<State<Tab>>,
+    cur_tab: Res<State<Tab>>,
     mut tab: ResMut<NextState<Tab>>,
 ) {
     for event in events.read() {

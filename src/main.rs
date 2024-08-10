@@ -5,13 +5,16 @@ use bevy::prelude::*;
 use bevy::state::app::StatesPlugin;
 use bevy_ratatui::error::exit_on_error;
 use bevy_ratatui::RatatuiPlugins;
+
 use ui::system::body_list::BodyList;
 
 use crate::systems::keyboard_input_system::keyboard_input_system;
-use crate::systems::ui_system::ui_system;
 use crate::systems::tab_system::tab_system;
+use crate::systems::ui_system::ui_system;
 use crate::ui::tab_menu::TabMenu;
 
+mod components;
+mod consts;
 mod systems;
 mod ui;
 
@@ -68,14 +71,18 @@ fn main() {
             "System".to_string(),
             "Science".to_string(),
             "Colonies".to_string(),
-            "Ship Components".to_string()
+            "Ship Components".to_string(),
         ],
         selected_tab: 0,
     };
     app.insert_resource(tab_menu);
 
     let body_list = BodyList {
-        items: vec!["Sun".to_string(), "Mercury".to_string(), "Venus".to_string()],
+        items: vec![
+            "Sun".to_string(),
+            "Mercury".to_string(),
+            "Venus".to_string(),
+        ],
         ..Default::default()
     };
     app.insert_resource(body_list);
