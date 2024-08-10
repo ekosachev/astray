@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use bevy::state::app::StatesPlugin;
 use bevy_ratatui::error::exit_on_error;
 use bevy_ratatui::RatatuiPlugins;
+use ui::system::body_list::BodyList;
 
 use crate::systems::keyboard_input_system::keyboard_input_system;
 use crate::systems::ui_system::ui_system;
@@ -23,6 +24,26 @@ enum Tab {
     Science,
     Colonies,
     ShipComponents,
+}
+
+impl Tab {
+    pub fn next(&self) -> Self {
+        match self {
+            Tab::System => Tab::Science,
+            Tab::Science => Tab::Colonies,
+            Tab::Colonies => Tab::ShipComponents,
+            Tab::ShipComponents => Tab::System,
+        }
+    }
+
+    pub fn prev(&self) -> Self {
+        match self {
+            Tab::System => Tab::ShipComponents,
+            Tab::Science => Tab::System,
+            Tab::Colonies => Tab::Science,
+            Tab::ShipComponents => Tab::Colonies,
+        }
+    }
 }
 
 #[derive(Event)]
@@ -52,6 +73,12 @@ fn main() {
         selected_tab: 0,
     };
     app.insert_resource(tab_menu);
+
+    let body_list = BodyList {
+        items: vec!["Sun".to_string(), "Mercury".to_string(), "Venus".to_string()],
+        ..Default::default()
+    };
+    app.insert_resource(body_list);
     // --- SYSTEMS ---
     app.add_systems(Update, ui_system.pipe(exit_on_error));
     app.add_systems(PreUpdate, keyboard_input_system);
