@@ -1,4 +1,4 @@
-use bevy::prelude::Component;
+use bevy::prelude::{Component, Entity};
 
 #[derive(Component, Clone)]
 pub struct Mass(pub f32);
@@ -21,3 +21,6 @@ pub struct Orbit {
     pub period: f32,
     pub position: f32,
 }
+
+#[derive(Component, Clone)]
+pub struct Satellites(pub Vec<Entity>);

@@ -11,13 +11,12 @@ use ratatui::widgets::{Block, Borders};
 pub struct BodyList {
     pub list_state: ListState,
     pub items: Vec<String>,
-    pub selected: usize,
     pub is_focused: bool,
 }
 
-pub fn render_body_list(frame: &mut Frame, area: Rect, data: &BodyList) {
+pub fn render_body_list(frame: &mut Frame, area: Rect, data: &mut BodyList) {
     let list = List::new(data.items.clone())
-        .highlight_symbol("--")
+        .highlight_symbol(">")
         .highlight_style(if data.is_focused {
             Style::default().add_modifier(Modifier::REVERSED)
         } else {
@@ -25,5 +24,5 @@ pub fn render_body_list(frame: &mut Frame, area: Rect, data: &BodyList) {
         })
         .block(Block::default().borders(Borders::RIGHT));
 
-    frame.render_widget(list, area);
+    frame.render_stateful_widget(list, area, &mut data.list_state);
 }

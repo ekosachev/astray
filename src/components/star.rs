@@ -4,7 +4,7 @@ use bevy::prelude::{Bundle, Component};
 use rand::distributions::Distribution;
 use rand::prelude::SliceRandom;
 
-use crate::components::general::{Mass, Name, Radius, Temperature};
+use crate::components::general::{Mass, Name, Radius, Satellites, Temperature};
 use crate::consts::physics::conversion_ratios::{
     SOLAR_LUMINOSITY_TO_WHATS, SOLAR_MASS_TO_KG, SOLAR_RADII_TO_M,
 };
@@ -31,6 +31,7 @@ pub struct StarBundle {
     pub mass: Mass,
     pub radius: Radius,
     pub temperature: Temperature,
+    pub satellites: Satellites,
 }
 
 fn calculate_luminosity(mass: f32) -> f32 {
@@ -101,6 +102,7 @@ impl StarBundle {
             mass: Mass(mass),
             radius: Radius(radius),
             temperature: Temperature(temperature),
+            satellites: Satellites(Vec::new()),
         }
     }
 }

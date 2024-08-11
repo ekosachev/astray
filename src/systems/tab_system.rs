@@ -21,6 +21,8 @@ pub fn tab_system(
                 tab_menu.selected_tab %= tab_menu.tab_titles.len();
                 tab.set(cur_tab.get().prev())
             }
+
+            _ => {}
         }
     }
 }

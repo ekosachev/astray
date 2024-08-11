@@ -8,10 +8,12 @@ use bevy_ratatui::RatatuiPlugins;
 
 use ui::system::body_list::BodyList;
 
+use crate::systems::body_list_system::body_list_system;
 use crate::systems::keyboard_input_system::keyboard_input_system;
+use crate::systems::system_generator_system::generate_star_system;
 use crate::systems::tab_system::tab_system;
 use crate::systems::ui_system::ui_system;
-use crate::ui::tab_menu::{BodyListState, TabMenu};
+use crate::ui::tab_menu::TabMenu;
 
 mod components;
 mod consts;
@@ -20,29 +22,41 @@ mod ui;
 
 const FRAMERATE: f32 = 1. / 60.;
 
-#[derive(Default, Copy, Clone, PartialEq, Eq, Hash, Debug, States)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, States)]
 enum Tab {
-    #[default]
-    System,
+    System(SystemTabMode),
     Science,
     Colonies,
     ShipComponents,
 }
 
+impl Default for Tab {
+    fn default() -> Self {
+        Tab::System(SystemTabMode::default())
+    }
+}
+
+#[derive(Default, Copy, Clone, PartialEq, Eq, Hash, Debug)]
+pub enum SystemTabMode {
+    #[default]
+    Idle,
+    SelectingBody,
+}
+
 impl Tab {
     pub fn next(&self) -> Self {
         match self {
-            Tab::System => Tab::Science,
+            Tab::System(_) => Tab::Science,
             Tab::Science => Tab::Colonies,
             Tab::Colonies => Tab::ShipComponents,
-            Tab::ShipComponents => Tab::System,
+            Tab::ShipComponents => Tab::System(SystemTabMode::Idle),
         }
     }
 
     pub fn prev(&self) -> Self {
         match self {
-            Tab::System => Tab::ShipComponents,
-            Tab::Science => Tab::System,
+            Tab::System(_) => Tab::ShipComponents,
+            Tab::Science => Tab::System(SystemTabMode::Idle),
             Tab::Colonies => Tab::Science,
             Tab::ShipComponents => Tab::Colonies,
         }
@@ -53,7 +67,14 @@ impl Tab {
 pub enum InputEvent {
     NextTab,
     PrevTab,
+    StarSelectionInBodyList,
+    BodyListUp,
+    BodyListDown,
+    BodyListFinishSelection,
 }
+
+#[derive(Resource)]
+pub struct CurrentSystem(Option<Entity>);
 
 fn main() {
     let mut app = App::new();
@@ -77,19 +98,15 @@ fn main() {
     };
     app.insert_resource(tab_menu);
 
-    let body_list = BodyList {
-        items: vec![
-            "Sun".to_string(),
-            "Mercury".to_string(),
-            "Venus".to_string(),
-        ],
-        ..Default::default()
-    };
+    let body_list = BodyList::default();
     app.insert_resource(body_list);
+    app.insert_resource(CurrentSystem(None));
     // --- SYSTEMS ---
     app.add_systems(Update, ui_system.pipe(exit_on_error));
     app.add_systems(PreUpdate, keyboard_input_system);
     app.add_systems(Update, tab_system);
+    app.add_systems(PostStartup, generate_star_system);
+    app.add_systems(Update, body_list_system);
     // --- MISC ---
     app.init_state::<Tab>();
     app.add_event::<InputEvent>();
