@@ -11,7 +11,7 @@ use ui::system::body_list::BodyList;
 use crate::systems::keyboard_input_system::keyboard_input_system;
 use crate::systems::tab_system::tab_system;
 use crate::systems::ui_system::ui_system;
-use crate::ui::tab_menu::TabMenu;
+use crate::ui::tab_menu::{BodyListState, TabMenu};
 
 mod components;
 mod consts;

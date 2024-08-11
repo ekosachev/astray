@@ -25,8 +25,6 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ## ❤️ Support
 A simple star to this project repo is enough to keep me motivated on this project for days.
-If you are feeling extra-generous today, you can donate some money to make 
-me really happy - https://donate.stream/astray
 
 ## Screenshots
 ![Screenshot 1](imgs/screenshot_1.png)
