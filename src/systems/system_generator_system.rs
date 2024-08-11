@@ -1,5 +1,5 @@
 use bevy::prelude::{BuildChildren, Commands};
-use rand::Rng;
+use rand::distributions::Distribution;
 
 use crate::components::planet::PlanetBundle;
 use crate::components::star::StarBundle;
@@ -20,7 +20,7 @@ pub fn generate_star_system(mut commands: Commands) {
 
     commands.spawn(star).with_children(|cb| {
         planets.iter().for_each(|p| {
-            cb.spawn(p);
+            cb.spawn(p.clone());
         })
     });
 }

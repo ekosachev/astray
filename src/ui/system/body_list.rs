@@ -1,5 +1,10 @@
 use bevy::prelude::Resource;
-use ratatui::{layout::Rect, widgets::{List, ListState}, Frame};
+use ratatui::{
+    Frame,
+    layout::Rect,
+    widgets::{List, ListState},
+};
+use ratatui::widgets::{Block, Borders};
 
 #[derive(Default, Resource)]
 pub struct BodyList {
@@ -10,8 +15,7 @@ pub struct BodyList {
 }
 
 pub fn render_body_list(frame: &mut Frame, area: Rect, data: &BodyList) {
-    let list = List::new(data.items.clone());
-
+    let list = List::new(data.items.clone()).block(Block::default().borders(Borders::RIGHT));
 
     frame.render_widget(list, area);
 }

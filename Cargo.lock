@@ -223,6 +223,7 @@ dependencies = [
  "bevy",
  "bevy_ratatui",
  "color-eyre",
+ "once_cell",
  "rand",
  "rand_distr",
  "ratatui",

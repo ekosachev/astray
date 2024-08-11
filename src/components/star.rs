@@ -1,5 +1,8 @@
+use std::fs;
+
 use bevy::prelude::{Bundle, Component};
 use rand::distributions::Distribution;
+use rand::prelude::SliceRandom;
 
 use crate::components::general::{Mass, Name, Radius, Temperature};
 use crate::consts::physics::conversion_ratios::{
@@ -83,12 +86,18 @@ impl StarBundle {
         let temperature = calculate_temperature(luminosity, radius);
         let star_class = determine_star_class(temperature);
 
+        let star_names: Vec<String> = fs::read_to_string("./assets/namelists/star_namelist.txt")
+            .unwrap()
+            .split("\r\n")
+            .map(|s| s.to_string())
+            .collect();
+
         Self {
             star: Star {
                 luminosity,
                 star_class,
             },
-            name,
+            name: Name(star_names.choose(&mut rng).unwrap().clone()),
             mass: Mass(mass),
             radius: Radius(radius),
             temperature: Temperature(temperature),
