@@ -5,11 +5,12 @@ use bevy::prelude::*;
 use bevy::state::app::StatesPlugin;
 use bevy_ratatui::error::exit_on_error;
 use bevy_ratatui::RatatuiPlugins;
-
+use ratatui::widgets::canvas::Context;
 use ui::system::body_list::BodyList;
 
 use crate::systems::body_list_system::body_list_system;
 use crate::systems::keyboard_input_system::keyboard_input_system;
+use crate::systems::orbit_update_system::update_orbits;
 use crate::systems::system_generator_system::generate_star_system;
 use crate::systems::tab_system::tab_system;
 use crate::systems::ui_system::ui_system;
@@ -73,6 +74,12 @@ pub enum InputEvent {
     BodyListFinishSelection,
 }
 
+#[derive(Event)]
+pub enum InGameEvent<'a> {
+    RenderSystem(Context<'a>)
+}
+
+
 #[derive(Resource)]
 pub struct CurrentSystem(Option<Entity>);
 
@@ -107,6 +114,7 @@ fn main() {
     app.add_systems(Update, tab_system);
     app.add_systems(PostStartup, generate_star_system);
     app.add_systems(Update, body_list_system);
+    app.add_systems(Update, update_orbits);
     // --- MISC ---
     app.init_state::<Tab>();
     app.add_event::<InputEvent>();

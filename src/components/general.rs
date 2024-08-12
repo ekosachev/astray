@@ -20,6 +20,7 @@ pub struct Orbit {
     pub radius: f32,
     pub period: f32,
     pub position: f32,
+    pub host: Entity,
 }
 
 #[derive(Component, Clone)]
