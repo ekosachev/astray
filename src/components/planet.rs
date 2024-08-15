@@ -1,10 +1,11 @@
 use std::f32::consts::{PI, TAU};
 
-use bevy::prelude::{Bundle, Component};
+use bevy::prelude::{Bundle, Component, Entity};
 use rand::distributions::Distribution;
 use rand::Rng;
+use ratatui::prelude::Color;
 
-use crate::components::general::{Mass, Name, Orbit, Radius};
+use crate::components::general::{BelongsToSolarSystem, Mass, Name, Orbit, Position, Radius, Renderable};
 use crate::components::star::StarBundle;
 use crate::consts::physics::constants::G;
 use crate::consts::physics::conversion_ratios::EARTH_MASS_TO_KG;
@@ -17,10 +18,13 @@ pub struct Planet {}
 #[derive(Bundle, Clone)]
 pub struct PlanetBundle {
     pub planet: Planet,
+    pub position: Position,
     pub name: Name,
     pub mass: Mass,
     pub radius: Radius,
     pub orbit: Orbit,
+    pub renderable: Renderable,
+    pub system: BelongsToSolarSystem,
 }
 
 fn roche_limit(primary_mass: f32, primary_radius: f32, secondary_mass: f32) -> f32 {
@@ -50,7 +54,7 @@ fn has_orbit_conflicts(
 }
 
 impl PlanetBundle {
-    pub fn generate(star: &StarBundle, existing_planets: Vec<Self>) -> Self {
+    pub fn generate(star: &StarBundle, existing_planets: Vec<Self>, system: Entity) -> Self {
         let mut rng = rand::thread_rng();
         let n = existing_planets.len() as usize;
         let letter: char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().nth(n).unwrap();
@@ -68,9 +72,8 @@ impl PlanetBundle {
         // Calculate star's roche limit and sphere of influence, these values
         // are used as a range for random generation
         let roche_limit = roche_limit(star.mass.0, star.radius.0, mass);
-        let sphere_of_influence = 1_000.0 * roche_limit; // TODO: replace with a better formula
+        let sphere_of_influence = 1000.0 * roche_limit; // TODO: replace with a better formula
 
-        assert!(roche_limit < sphere_of_influence);
         let mut orbit_radius = rand::thread_rng().gen_range(roche_limit..=sphere_of_influence);
 
         // While orbit conflicts exist, generate a new orbit radius value
@@ -95,6 +98,7 @@ impl PlanetBundle {
 
         Self {
             planet: Planet {},
+            position: Position(0.0, 0.0),
             name: Name(star.name.0.clone() + " " + &*letter.to_string()),
             mass: Mass(mass),
             radius: Radius(radius),
@@ -103,6 +107,8 @@ impl PlanetBundle {
                 period: orbital_period,
                 position: rand::thread_rng().gen_range(0.0..TAU),
             },
+            renderable: Renderable(Color::Green),
+            system: BelongsToSolarSystem(system),
         }
     }
 }

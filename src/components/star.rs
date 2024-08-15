@@ -1,10 +1,11 @@
 use std::fs;
 
-use bevy::prelude::{Bundle, Component};
+use bevy::prelude::{Bundle, Component, Entity};
 use rand::distributions::Distribution;
 use rand::prelude::SliceRandom;
+use ratatui::prelude::Color;
 
-use crate::components::general::{Mass, Name, Radius, Satellites, Temperature};
+use crate::components::general::{BelongsToSolarSystem, Mass, Name, Position, Radius, Renderable, Satellites, Temperature};
 use crate::consts::physics::conversion_ratios::{
     SOLAR_LUMINOSITY_TO_WHATS, SOLAR_MASS_TO_KG, SOLAR_RADII_TO_M,
 };
@@ -27,11 +28,14 @@ pub struct Star {
 #[derive(Bundle)]
 pub struct StarBundle {
     pub star: Star,
+    pub position: Position,
     pub name: Name,
     pub mass: Mass,
     pub radius: Radius,
     pub temperature: Temperature,
     pub satellites: Satellites,
+    pub renderable: Renderable,
+    pub solar_system: BelongsToSolarSystem,
 }
 
 fn calculate_luminosity(mass: f32) -> f32 {
@@ -79,7 +83,7 @@ fn determine_star_class(temperature: f32) -> StarClass {
 }
 
 impl StarBundle {
-    pub fn generate() -> Self {
+    pub fn generate(host_system: Entity) -> Self {
         let mut rng = rand::thread_rng();
         let mass = rand_distr::Normal::new(1.2, 0.2).unwrap().sample(&mut rng) * SOLAR_MASS_TO_KG;
         let luminosity = calculate_luminosity(mass);
@@ -99,10 +103,13 @@ impl StarBundle {
                 star_class,
             },
             name: Name(star_names.choose(&mut rng).unwrap().clone()),
+            position: Position(0.0, 0.0),
             mass: Mass(mass),
             radius: Radius(radius),
             temperature: Temperature(temperature),
             satellites: Satellites(Vec::new()),
+            renderable: Renderable(Color::White),
+            solar_system: BelongsToSolarSystem(host_system),
         }
     }
 }

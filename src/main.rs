@@ -1,19 +1,25 @@
 use std::time::Duration;
 
 use bevy::app::ScheduleRunnerPlugin;
+use bevy::log::tracing_subscriber::Layer;
 use bevy::prelude::*;
 use bevy::state::app::StatesPlugin;
+use bevy::utils::tracing::Subscriber;
 use bevy_ratatui::error::exit_on_error;
 use bevy_ratatui::RatatuiPlugins;
 use ratatui::widgets::canvas::Context;
+
 use ui::system::body_list::BodyList;
 
+use crate::components::general::Position;
 use crate::systems::body_list_system::body_list_system;
 use crate::systems::keyboard_input_system::keyboard_input_system;
 use crate::systems::orbit_update_system::update_orbits;
+use crate::systems::system_display_system::system_display_system;
 use crate::systems::system_generator_system::generate_star_system;
 use crate::systems::tab_system::tab_system;
 use crate::systems::ui_system::ui_system;
+use crate::ui::system::system_display::SystemDisplay;
 use crate::ui::tab_menu::TabMenu;
 
 mod components;
@@ -42,6 +48,7 @@ pub enum SystemTabMode {
     #[default]
     Idle,
     SelectingBody,
+    Map,
 }
 
 impl Tab {
@@ -72,6 +79,14 @@ pub enum InputEvent {
     BodyListUp,
     BodyListDown,
     BodyListFinishSelection,
+    EnterMapNavMode,
+    MapNavUp,
+    MapNavDown,
+    MapNavLeft,
+    MapNavRight,
+    MapNavZoomIn,
+    MapNavZoomOut,
+    MapNavFinish,
 }
 
 #[derive(Event)]
@@ -79,6 +94,20 @@ pub enum InGameEvent<'a> {
     RenderSystem(Context<'a>)
 }
 
+struct CustomLayer;
+
+impl<S: Subscriber> Layer<S> for CustomLayer {
+    fn on_event(
+        &self,
+        event: &bevy::utils::tracing::Event<'_>,
+        _ctx: bevy::log::tracing_subscriber::layer::Context<'_, S>,
+    ) {
+        println!("Got event!");
+        println!("  level={:?}", event.metadata().level());
+        println!("  target={:?}", event.metadata().target());
+        println!("  name={:?}", event.metadata().name());
+    }
+}
 
 #[derive(Resource)]
 pub struct CurrentSystem(Option<Entity>);
@@ -108,13 +137,20 @@ fn main() {
     let body_list = BodyList::default();
     app.insert_resource(body_list);
     app.insert_resource(CurrentSystem(None));
+
+    app.insert_resource(SystemDisplay {
+        translation: Position(0.0, 0.0),
+        zoom: 10.0,
+        is_focused: false,
+    });
     // --- SYSTEMS ---
     app.add_systems(Update, ui_system.pipe(exit_on_error));
     app.add_systems(PreUpdate, keyboard_input_system);
     app.add_systems(Update, tab_system);
-    app.add_systems(PostStartup, generate_star_system);
+    app.add_systems(PreStartup, generate_star_system);
     app.add_systems(Update, body_list_system);
     app.add_systems(Update, update_orbits);
+    app.add_systems(Update, system_display_system);
     // --- MISC ---
     app.init_state::<Tab>();
     app.add_event::<InputEvent>();

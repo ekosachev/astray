@@ -36,7 +36,38 @@ pub fn keyboard_input_system(
             (KeyCode::Char('q'), Tab::System(SystemTabMode::Idle)) => {
                 input_event.send(InputEvent::StarSelectionInBodyList);
             }
+            (KeyCode::Char('e'), Tab::System(SystemTabMode::Idle)) => {
+                input_event.send(InputEvent::EnterMapNavMode);
+            }
 
+            (KeyCode::Char('e'), Tab::System(SystemTabMode::Map)) => {
+                input_event.send(InputEvent::MapNavFinish);
+            }
+
+            (KeyCode::Char('w'), Tab::System(SystemTabMode::Map)) => {
+                input_event.send(InputEvent::MapNavUp);
+            }
+
+            (KeyCode::Char('s'), Tab::System(SystemTabMode::Map)) => {
+                input_event.send(InputEvent::MapNavDown);
+            }
+
+            (KeyCode::Char('a'), Tab::System(SystemTabMode::Map)) => {
+                input_event.send(InputEvent::MapNavLeft);
+            }
+
+            (KeyCode::Char('d'), Tab::System(SystemTabMode::Map)) => {
+                input_event.send(InputEvent::MapNavRight);
+            }
+
+            (KeyCode::Char('r'), Tab::System(SystemTabMode::Map)) => {
+                input_event.send(InputEvent::MapNavZoomIn);
+            }
+
+            (KeyCode::Char('f'), Tab::System(SystemTabMode::Map)) => {
+                input_event.send(InputEvent::MapNavZoomOut);
+            }
+            
             (KeyCode::Up, Tab::System(SystemTabMode::SelectingBody)) => {
                 input_event.send(InputEvent::BodyListUp);
             }

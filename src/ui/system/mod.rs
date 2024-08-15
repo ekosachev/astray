@@ -1,2 +1,2 @@
 pub mod body_list;
-mod system_display;
+pub mod system_display;

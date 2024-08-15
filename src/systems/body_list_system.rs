@@ -1,7 +1,7 @@
 use bevy::prelude::{EventReader, NextState, Query, Res, ResMut, With};
 
 use crate::{CurrentSystem, InputEvent, SystemTabMode, Tab};
-use crate::components::general::{Name, Satellites};
+use crate::components::general::{BelongsToSolarSystem, Name};
 use crate::components::planet::Planet;
 use crate::components::star::Star;
 use crate::ui::system::body_list::BodyList;
@@ -11,23 +11,37 @@ pub fn body_list_system(
     mut events: EventReader<InputEvent>,
     mut tab: ResMut<NextState<Tab>>,
     maybe_system: Res<CurrentSystem>,
-    star_names: Query<&Name, With<Star>>,
-    satellites: Query<&Satellites, With<Star>>,
-    planet_names: Query<&Name, With<Planet>>,
+    star_names: Query<(&Name, &BelongsToSolarSystem), With<Star>>,
+    planet_names: Query<(&Name, &BelongsToSolarSystem), With<Planet>>,
 ) {
     if let Some(system) = maybe_system.0 {
-        let star_name = star_names.get(system).unwrap().0.clone();
-        let planet_names: Vec<String> = satellites
-            .get(system)
-            .unwrap()
-            .0
-            .iter()
-            .map(|s| planet_names.get(*s).unwrap().0.clone())
-            .collect();
-
         body_list.items.clear();
-        body_list.items.push(star_name);
-        body_list.items.extend(planet_names);
+
+        let maybe_star = star_names.iter().find(
+            |(_, s)| {
+                s.0 == system
+            }
+        );
+
+        if let Some(star) = maybe_star {
+            body_list.items.push(star.0.clone().0);
+
+            let planets = planet_names.iter().filter(
+                |(_, p)| {
+                    p.0 == system
+                }
+            ).map(
+                |(n, _)| {
+                    n.0.clone()
+                }
+            ).collect::<Vec<String>>();
+
+            body_list.items.extend(planets);
+        } else {
+            body_list.items.push(String::from("No star found"))
+        }
+    } else {
+        body_list.items.push(String::from("No system set"))
     }
 
     for event in events.read() {
