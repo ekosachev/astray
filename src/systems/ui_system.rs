@@ -7,8 +7,8 @@ use crate::{CurrentSystem, Tab, ui::{
     system::body_list::{BodyList, render_body_list},
     tab_menu::{render_tab_menu, TabMenu},
 }};
-use crate::components::general::{BelongsToSolarSystem, Name, Orbit, Position, Radius,
-                                 Renderable, Satellites};
+use crate::components::general::{BelongsToSolarSystem, Name, Orbit, Position,
+                                 Radius, Renderable, Satellites, Mass};
 use crate::components::planet::Planet;
 use crate::components::star::Star;
 use crate::ui::system::system_display::{render_system_display, SystemDisplay};
@@ -21,9 +21,11 @@ pub fn ui_system(
     mut body_list: ResMut<BodyList>,
     system_display: Res<SystemDisplay>,
     maybe_system: Res<CurrentSystem>,
-    stars: Query<(&Position, &Radius, &Renderable, &Satellites, &Name, &BelongsToSolarSystem),
+    stars: Query<(&Position, &Radius, &Renderable, &Satellites, &Name, &BelongsToSolarSystem,
+                  &Mass),
         With<Star>>,
-    planets: Query<(&Orbit, &Position, &Radius, &Renderable, &Name, &BelongsToSolarSystem), With<Planet>>
+    planets: Query<(&Orbit, &Position, &Radius, &Renderable, &Name, &BelongsToSolarSystem, &Mass),
+        With<Planet>>
 ) -> color_eyre::Result<()> {
     context.draw(|frame| {
         let area = frame.size();
@@ -50,7 +52,7 @@ pub fn ui_system(
 
                 if let Some(system) = maybe_system.0 {
                     if let Some(star_selected) = stars.iter()
-                        .find(|(_, _, _, _, _, b)| {
+                        .find(|(_, _, _, _, _, b, _)| {
                             b.0 == system
                         })
                     {
@@ -58,13 +60,16 @@ pub fn ui_system(
                             frame,
                             tertiary_chunks[0],
                             &system_display,
-                            (star_selected.0, star_selected.1, star_selected.2, star_selected.4),
+                            (star_selected.0, star_selected.1, star_selected.2, star_selected.4,
+                             star_selected.6),
                             planets.iter()
                                 .filter(|planet| { planet.5.0 == system })
                                 .map(|planet| {
-                                    (planet.0, planet.1, planet.2, planet.3, planet.4)
+                                    (planet.0, planet.1, planet.2, planet.3, planet.4, planet.6)
                                 })
-                                .collect::<Vec<(&Orbit, &Position, &Radius, &Renderable, &Name)>>()
+                                .collect::<Vec<(&Orbit, &Position, &Radius, &Renderable, &Name,
+                                                &Mass)
+                                >>()
                                 .as_slice(),
                         );
                     } else {
