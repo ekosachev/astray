@@ -39,6 +39,9 @@ fn gravity_gradient(min: usize, max: usize, p: usize) -> Color {
 }
 
 fn lerp(min: f32, max: f32, n_min: f32, n_max: f32, value: f32) -> f32 {
+    if min == max {
+        return (n_min + n_max) / 2.0;
+    }
     let k = (value - min) / (max - min);
     n_min + (n_max - n_min) * k
 }
